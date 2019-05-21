@@ -1,0 +1,18 @@
+package com.agility.game.Utils;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+
+public class SpritePack {
+    public Sprite[] content;
+    public int iteration;
+    public SpritePack(String spriteName, int count) {
+        content = new Sprite[count];
+        for (int i = 0; i < count; i++) {
+            Texture buffer = new Texture(Gdx.files.internal(spriteName+"-0"+i+".png"));
+            content[i] =  new Sprite(buffer);
+            //content[i].setSize(50/2,37/2);
+        }
+    }
+}
