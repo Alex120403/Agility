@@ -1,6 +1,7 @@
 package com.agility.game.Utils;
 
 import com.agility.game.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
@@ -31,7 +32,7 @@ public class SimpleDirectionGestureDetector extends GestureDetector implements I
         touchPos = new Vector2(x,y);
         shift = true;
         touchButton = button;
-        touchOnUI = Game.tap(x,y);
+        touchOnUI = Game.tap(x,Gdx.graphics.getHeight()-y);
         return super.touchDown(x, y, pointer, button);
     }
 
@@ -50,6 +51,7 @@ public class SimpleDirectionGestureDetector extends GestureDetector implements I
 
         }
         touchOnUI = false;
+        Game.removeFinger(x,Gdx.graphics.getHeight()-y);
         return super.touchUp(x, y, pointer, button);
     }
 

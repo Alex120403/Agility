@@ -1,10 +1,12 @@
 package com.agility.game;
 
 import com.agility.game.UI.ItemInfo;
+import com.agility.game.UI.MoneyMonitor;
 import com.agility.game.UI.OnHitDamageView;
 import com.agility.game.UI.UI;
 import com.agility.game.WorldObjects.Block;
 import com.agility.game.Utils.*;
+import com.agility.game.WorldObjects.Coin;
 import com.agility.game.WorldObjects.Item;
 import com.agility.game.WorldObjects.StartWeapon;
 import com.badlogic.gdx.Gdx;
@@ -38,7 +40,7 @@ public class Game extends com.badlogic.gdx.Game {
     private Stage stage;
     private static UI ui;
     private static MainMenu mainMenu;
-    private static LockedCamera camera;
+    public static LockedCamera camera;
     private SpriteBatch batch;
     private Map map;
     private Hero hero;
@@ -72,6 +74,7 @@ public class Game extends com.badlogic.gdx.Game {
     public void start() {
         mainMenu.music.stop();
         mainMenu.music.dispose();
+
         if(inMenu) {
             System.out.print("Init box2d............");
             init("box2d");
@@ -110,9 +113,12 @@ public class Game extends com.badlogic.gdx.Game {
 
             stage.getBatch().setProjectionMatrix(camera.combined);
             stage.draw();
+            stage.act(Gdx.graphics.getDeltaTime());
             ui.act();
             ui.draw();
             if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
+                getStage().addActor(new Coin(new Vector2(Hero.getPosition().x,Hero.getPosition().y),getMainWorld(),this));
+
                 debugRenderer.render(background, camera.combined);
             }
             if (Gdx.input.isKeyPressed(Input.Keys.X)) {
@@ -155,6 +161,8 @@ public class Game extends com.badlogic.gdx.Game {
         }
         mainMenu.dispose();
     }
+
+
 
     public void addRandomItem(Vector2 position, boolean fromBoss) {
         Item item = null;
@@ -208,6 +216,7 @@ public class Game extends com.badlogic.gdx.Game {
 
         else if(request.equalsIgnoreCase("ui")) {
             ui = new UI(this);
+            ui.addActor(MoneyMonitor.instance);
             OnHitDamageView.init();
         }
 
@@ -217,7 +226,7 @@ public class Game extends com.badlogic.gdx.Game {
             stage.addActor(hero);
             ItemInfo.init();
             createStartSword();
-
+            Coin.loadAtlases();
         }
 
         else if(request.equalsIgnoreCase("enemies")) {
@@ -328,6 +337,15 @@ public class Game extends com.badlogic.gdx.Game {
     }
 
     public static boolean tap(float x, float y) {
-        return ui.tap((int)x,(int)y);
+        boolean res = ui.tap((int)x,(int)y);
+        if(!res) {
+            ui.point(x,y);
+        }
+        return res;
+    }
+
+    public static boolean removeFinger(float x, float y) {
+        ui.swipeEnd(x,y);
+        return false;
     }
 }

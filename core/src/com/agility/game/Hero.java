@@ -9,6 +9,7 @@ import com.agility.game.Utils.SpritePack;
 import com.agility.game.WorldObjects.Item;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,6 +28,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -59,6 +61,11 @@ public class Hero extends Actor {
     private boolean stopped;
     private Item weapon, armor;
     private Sound[] swipes = new Sound[6];
+    private Sound[] jumps = new Sound[2];
+    private Sound onGroundStep,rollSound;
+    ArrayList<Enemy> enemies;
+    private static final Random random = new Random();
+    //private Music runSound;
 
     public Hero(Vector2 position, World world, final Game game) {
         this.position = position;
@@ -68,12 +75,22 @@ public class Hero extends Actor {
         blood = new Sprite(new Texture(Gdx.files.internal("blood.png")));
         blood.setSize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
-        swipes[0] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe0.mp3"));
-        swipes[1] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe1.mp3"));
-        swipes[2] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe2.mp3"));
-        swipes[3] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe0.mp3"));
-        swipes[4] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe1.mp3"));
-        swipes[5] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe2.mp3"));
+        swipes[0] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe0.ogg"));
+        swipes[1] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe1.ogg"));
+        swipes[2] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe2.ogg"));
+        swipes[3] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe0.ogg"));
+        swipes[4] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe1.ogg"));
+        swipes[5] = Gdx.audio.newSound(Gdx.files.internal("sounds/swipe2.ogg"));
+
+        jumps[0] = Gdx.audio.newSound(Gdx.files.internal("sounds/jump0.ogg"));
+        jumps[1] = Gdx.audio.newSound(Gdx.files.internal("sounds/jump1.ogg"));
+
+        onGroundStep = Gdx.audio.newSound(Gdx.files.internal("sounds/onGround0.ogg"));
+
+        rollSound = Gdx.audio.newSound(Gdx.files.internal("sounds/roll0.ogg"));
+
+        //runSound = Gdx.audio.newMusic(Gdx.files.internal("sounds/walk.ogg"));
+
         init("animations");
         init("default equipment");
         inventory = new Inventory();
@@ -87,6 +104,9 @@ public class Hero extends Actor {
                     avaliableJumps-=1;
                     body.setLinearVelocity(body.getLinearVelocity().x,0);
                     body.applyLinearImpulse(new Vector2(0, 16000), new Vector2(0, 0), true);
+                    jumps[avaliableJumps].play();
+                    isAttacking = false;
+                    stabilizeSpeed();
                 }
 
                 stopped = false;
@@ -97,6 +117,7 @@ public class Hero extends Actor {
                 if(!isDied) {
                     if (wallTouchDirection == -1 && !onGround && avaliableJumps != 2) {
                         body.setLinearVelocity(0, 0);
+                        jumps[1].play();
                         body.applyLinearImpulse(new Vector2(-999999999, 999999999), new Vector2(0, 0), true);
                         wallTouchDirection = 0;
                     }
@@ -111,6 +132,7 @@ public class Hero extends Actor {
                 if(!isDied) {
                     if (wallTouchDirection == 1 && !onGround && avaliableJumps != 2) {
                         body.setLinearVelocity(0, 0);
+                        jumps[1].play();
                         body.applyLinearImpulse(new Vector2(999999999, 999999999), new Vector2(0, 0), true);
                         wallTouchDirection = 0;
                     }
@@ -136,7 +158,7 @@ public class Hero extends Actor {
                         body.setLinearVelocity(0, body.getLinearVelocity().y);
                         if (hasWeapon) {
 
-                            swipes[attackOrder % 6].play(1f);
+                            swipes[random.nextInt(3)].play(1f);
                             setAnimation("attack" + ((++attackOrder % 3) + 1));
                         } else {
                             setAnimation("cast");
@@ -203,8 +225,19 @@ public class Hero extends Actor {
         else {
             setAnimation("back-roll");
         }
+        enemies = new ArrayList<Enemy>();
+        for (int i = 0; i < game.getStage().getActors().size; i++) {
+            Actor a = game.getStage().getActors().get(i);
+            if(a.getName() != null && a.getName().equals("enemy")) {
+                enemies.add((Enemy)game.getStage().getActors().get(i));
+            }
+        }
+        for (Enemy e:enemies) {
+            e.getBody().setActive(false);
+        }
+        rollSound.play();
         isRolling = true;
-        rollingTimer = 30;
+        rollingTimer = 24;
         this.rollDirection = rollDirection;
     }
 
@@ -256,6 +289,9 @@ public class Hero extends Actor {
             afterRollingSlowlinessTimer = 10;
             stabilizeSpeed();
             isRolling = false;
+            for (Enemy e:enemies) {
+                e.getBody().setActive(true);
+            }
             rollDirection = 0;
         }
     }
@@ -277,7 +313,7 @@ public class Hero extends Actor {
         def.gravityScale = 0;
         def.type = BodyDef.BodyType.DynamicBody;
         def.position.x = position.x+3+7*direction;
-        def.position.y = position.y+9;
+        def.position.y = position.y+7;
 
         swordSwipe = world.createBody(def);
         swordSwipe.setFixedRotation(true);
@@ -330,7 +366,7 @@ public class Hero extends Actor {
             isAttacking = true;
             //  direction = 0;
             if(hasWeapon) {
-                swipes[attackOrder % 6].play(1f);
+                swipes[random.nextInt(3)].play(1f);
                 setAnimation("attack" + ((++attackOrder % 3) + 1));
             }
             else {
@@ -373,10 +409,10 @@ public class Hero extends Actor {
                     new Vector2((float)Math.sqrt(3)*4,(float)Math.sqrt(12)*4)};
                      */
                     new Vector2(0,(float)Math.sqrt(12)*4),
-                    new Vector2(0,1),
-                    new Vector2(1,0),
-                    new Vector2((float)Math.sqrt(3)*4-1,0),
-                    new Vector2((float)Math.sqrt(3)*4,1),
+                    new Vector2(0,0.2f),
+                    new Vector2(0.2f,0),
+                    new Vector2((float)Math.sqrt(3)*4-0.2f,0),
+                    new Vector2((float)Math.sqrt(3)*4,0.2f),
                     new Vector2((float)Math.sqrt(3)*4,(float)Math.sqrt(12)*4)};
             shape.set(points);
             fixtureDef.shape = shape;
@@ -456,6 +492,7 @@ public class Hero extends Actor {
                 avaliableJumps = 2;
                 if (!currentAnimation.equals("run") && !isRolling) {
                     setAnimation("run");
+                    onGroundStep.play();
                 }
             } else if (block.getPosition().y - 4 >= position.y - 12 * 16) {
                 if (block.getPosition().x > position.x) {

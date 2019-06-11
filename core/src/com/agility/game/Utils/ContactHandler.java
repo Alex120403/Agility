@@ -15,6 +15,8 @@ import java.util.Iterator;
 public class ContactHandler implements ContactListener {
     private Game game;
 
+
+
     public ContactHandler(Game game) {
         this.game = game;
     }

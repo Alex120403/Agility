@@ -3,6 +3,7 @@ package com.agility.game;
 import com.agility.game.Utils.AnimationWithOffset;
 import com.agility.game.Utils.EnemyDef;
 import com.agility.game.Utils.SpritePack;
+import com.agility.game.WorldObjects.Coin;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -28,7 +29,7 @@ import java.util.Random;
 public class Enemy extends Actor {
     private Body body;
     private final World world;
-    private Vector2 position;
+    private Vector2 position, dieposition;
     private int direction = 1, damaged;
     private Sprite currentFrame;
     private String currentAnimation = "idle";
@@ -36,7 +37,7 @@ public class Enemy extends Actor {
     private float stateTime = 0, maxHealth,health, cooldown, alpha = 1 , damage, visibilityX, visibilityY, attackRange, runVelocity;
     private final HashMap<String,AnimationWithOffset> animations;
     private final Texture hpbg,hpfg;
-    private boolean died = false,alreadyDealedDamage, isAttacking, hasDrop = true;
+    private boolean died = false,alreadyDealedDamage, isAttacking, hasDrop = true, hasDiamonds = true;
     private Game game;
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
 
@@ -56,6 +57,7 @@ public class Enemy extends Actor {
         this.world = world;
         this.position = position;
         this.game = game;
+        setName("enemy");
         //cooldown =
 
         init("body");
@@ -133,32 +135,47 @@ public class Enemy extends Actor {
             }
         }
         if(health<=0) {
+            dropDiamonds();
+            body.setLinearVelocity(0,0);
             alpha-=0.002f;
             if(!died) {
+                dieposition = position;
                 died = true;
                 world.destroyBody(body);
                 setAnimation("die");
             }
+            position = dieposition;
 
         }
-        position = body.getPosition();
+        else {
+            position = body.getPosition();
+        }
         stateTime+=Gdx.graphics.getDeltaTime();
         currentFrame = animations.get(currentAnimation).animation.getKeyFrame(stateTime, !isAttacking && !died);
 
         if(hasDrop && alpha <= 0.8f) {
             hasDrop = false;
             game.addRandomItem(position);
-        }
-        if(alpha<=0.01f) {
 
+        }
+
+
+        if(alpha<=0.01f) {
             game.getEnemies().remove(this);
             game.getStage().getActors().removeValue(this,true);
         }
+
         if(damaged > 0) {
             batch.setColor(colorDamage);
             currentFrame.setColor(colorDamage);
         }
-        currentFrame.setPosition(body.getPosition().x+animations.get(currentAnimation).defaultXOffset-direction*animations.get(currentAnimation).xOffset,body.getPosition().y-0.5f+animations.get(currentAnimation).yOffset);
+        if(!died && alpha > 0.6f){
+            currentFrame.setPosition(body.getPosition().x + animations.get(currentAnimation).defaultXOffset - direction * animations.get(currentAnimation).xOffset, body.getPosition().y - 0.5f + animations.get(currentAnimation).yOffset);
+        }
+        else {
+            currentFrame.setPosition(dieposition.x + animations.get(currentAnimation).defaultXOffset - direction * animations.get(currentAnimation).xOffset, dieposition.y - 0.5f + animations.get(currentAnimation).yOffset);
+
+        }
         currentFrame.setScale(0.5f);
         currentFrame.setFlip(direction == -1,false);
         currentFrame.draw(batch,alpha);
@@ -169,9 +186,15 @@ public class Enemy extends Actor {
         else if(isAttacking) {
             body.setLinearVelocity(0,body.getLinearVelocity().y);
             if(stateTime>=stateTimeSlash && stateTime <= stateTimeSlash+0.1f && !alreadyDealedDamage && !died) {
-                if(Math.abs(Hero.getPosition().y - position.y) <= visibilityY && Math.abs(Hero.getPosition().x - position.x) <= attackRange) {
-                    game.getHero().damage(damage);
+                if(Math.abs(Hero.getPosition().y - position.y) <= visibilityY) {
+                    if(direction == 1 && Hero.getPosition().x - position.x <= attackRange && Hero.getPosition().x - position.x > 0) {
+                        game.getHero().damage(damage);
+                    }
+                    else if(direction == -1 && position.x - Hero.getPosition().x <= attackRange && position.x - Hero.getPosition().x > 0) {
+                        game.getHero().damage(damage);
+                    }
                     alreadyDealedDamage = true;
+
                 }
             }
         }
@@ -236,7 +259,13 @@ public class Enemy extends Actor {
     public void damage(float deal) {
         this.health -= deal;
         damaged = 10;
-        body.applyLinearImpulse(new Vector2(direction*-5999, 1999), new Vector2(0, 0), true);
+        if(health > 0) {
+            body.applyLinearImpulse(new Vector2(direction * -5999, 1999), new Vector2(0, 0), true);
+        }
+        else {
+
+
+        }
     }
     private void setAnimation(String name) {
         if(died && name.equals("die") || !died) {
@@ -245,6 +274,16 @@ public class Enemy extends Actor {
         }
 
     }
+
+    private void dropDiamonds() {
+        if(hasDiamonds) {
+            hasDiamonds = false;
+            for (int i = 0; i < 15; i++) {
+                //game.getStage().addActor(new Coin(new Vector2(position.x, position.y+i/2), game.getMainWorld(), game));
+            }
+        }
+    }
+
 
     public void cooldown() {
         this.cooldown = DEFAULT_COOLDOWN;
