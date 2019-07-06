@@ -2,29 +2,23 @@ package com.agility.game;
 
 import com.agility.game.Utils.AnimationWithOffset;
 import com.agility.game.Utils.EnemyDef;
-import com.agility.game.Utils.SpritePack;
+import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.WorldObjects.Coin;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 
 import java.util.HashMap;
-import java.util.Random;
 
 public class Enemy extends Actor {
     private Body body;
@@ -37,9 +31,10 @@ public class Enemy extends Actor {
     private float stateTime = 0, maxHealth,health, cooldown, alpha = 1 , damage, visibilityX, visibilityY, attackRange, runVelocity;
     private final HashMap<String,AnimationWithOffset> animations;
     private final Texture hpbg,hpfg;
-    private boolean died = false,alreadyDealedDamage, isAttacking, hasDrop = true, hasDiamonds = true;
+    private boolean died = false,alreadyDealedDamage, isAttacking, hasDrop = Math.random()<=GameBalanceConstants.EQUIPMENT_DROP_CHANCE, hasDiamonds = true;
     private Game game;
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
+    private boolean fragged;
 
 
     public Enemy(EnemyDef def, World world, Vector2 position, Game game) {
@@ -153,10 +148,15 @@ public class Enemy extends Actor {
         stateTime+=Gdx.graphics.getDeltaTime();
         currentFrame = animations.get(currentAnimation).animation.getKeyFrame(stateTime, !isAttacking && !died);
 
-        if(hasDrop && alpha <= 0.8f) {
-            hasDrop = false;
-            game.addRandomItem(position);
-
+        if(alpha <= 0.95f) {
+            if (hasDrop) {
+                hasDrop = false;
+                game.addRandomItem(position);
+            }
+            if(!fragged) {
+                Hero.frag();
+                fragged = true;
+            }
         }
 
 
@@ -279,7 +279,7 @@ public class Enemy extends Actor {
         if(hasDiamonds) {
             hasDiamonds = false;
             for (int i = 0; i < 15; i++) {
-                //game.getStage().addActor(new Coin(new Vector2(position.x, position.y+i/2), game.getMainWorld(), game));
+                game.getStage().addActor(new Coin(new Vector2(position.x, position.y+i/2), game.getMainWorld(), game));
             }
         }
     }

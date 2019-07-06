@@ -75,7 +75,6 @@ public class ItemInfo extends Actor implements Disposable {
         parameter.size = 28;
         parameter.color = Color.WHITE;
         nameFont = generator.generateFont(parameter);
-        System.out.println(nameFont);
         generator.dispose();
 
         generator = new FreeTypeFontGenerator(Gdx.files.internal("font.ttf"));

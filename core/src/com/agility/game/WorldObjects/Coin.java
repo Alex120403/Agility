@@ -34,8 +34,7 @@ public class Coin extends Actor {
     public static final int TYPE_COIN = 4;
 
     private static final Random random = new Random();
-    private Body body;
-    private Vector2 position;
+    private Vector2 position, velocity;
     private World world;
     private Game game;
     private static final Texture[] atlases = new Texture[8];
@@ -56,10 +55,7 @@ public class Coin extends Actor {
         this.world = world;
         this.game = game;
 
-        init("body");
-        body.applyLinearImpulse((random.nextFloat()+0.2f) * (Math.random() > 0.5f ? 3f : -3f),random.nextFloat()/12f,0,0,false);
-        System.out.println(random.nextFloat() * (Math.random() > 0.5f ? 3f : -3f)+"");
-
+        velocity = new Vector2((random.nextFloat()+0.2f) * (Math.random() > 0.5f ? 1.5f : -1.5f),random.nextFloat() * (Math.random() > 0.5f ? 1.5f : -1.5f));
         animation = new AnimationWithOffset(new Animation<Sprite>(0.5f,sprites[getRandomType()]),0,0,0);
     }
 
@@ -82,20 +78,20 @@ public class Coin extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         animation.animation.getKeyFrame(stateTime,true).draw(batch,0.7f);
         stateTime+=0.07f;
-        checkForPlayerTouch();
+
         if(stateTime >= 2.5f) {
             moveToHero();
-
+            checkForPlayerTouch();
         }
         else {
-            body.setLinearVelocity(body.getLinearVelocity().x,body.getLinearVelocity().y/1.05f);
+            velocity.y = velocity.y/1.05f;
             moveNormally();
         }
     }
 
     private void moveNormally() {
-        position.set(body.getPosition().x-5/1.5f,body.getPosition().y);
-        animation.animation.getKeyFrame(stateTime,true).setPosition(body.getPosition().x-5/1.5f,body.getPosition().y);
+        position.set(position.x+velocity.x,position.y+velocity.y);
+        animation.animation.getKeyFrame(stateTime,true).setPosition(position.x-5/1.5f,position.y);
     }
 
     private void moveToHero() {
@@ -125,8 +121,13 @@ public class Coin extends Actor {
         if(Math.abs(position.x - game.getHero().getBody().getPosition().x) <= 8 &&
                 Math.abs(position.y - game.getHero().getBody().getPosition().y) <= 10){
             try {
-                MoneyMonitor.addMoney(random.nextInt(5));
-                body.destroyFixture(body.getFixtureList().first());
+                if(Math.random() > 0.95) {
+                    MoneyMonitor.addDiamonds(random.nextInt(2)+1);
+                }
+                else {
+                    MoneyMonitor.addMoney(random.nextInt(5)+1);
+                }
+
                 game.getStage().getActors().removeValue(this, true);
             }
             catch (Exception e) {
@@ -136,27 +137,7 @@ public class Coin extends Actor {
     }
 
     private void init(String request) {
-        if(request.equals("body")) {
-            // Body init
-            BodyDef def = new BodyDef();
-            def.type = BodyDef.BodyType.DynamicBody;
-            def.position.x = position.x+4;
-            def.position.y = position.y;
-            body = world.createBody(def);
-            body.setSleepingAllowed(true);
-            body.setGravityScale(10);
-            body.setUserData("coin");
 
-            FixtureDef fixtureDef = new FixtureDef();
-            PolygonShape shape = new PolygonShape();
-            shape.setAsBox(0.001f,0.001f);
-            fixtureDef.shape = shape;
-            fixtureDef.friction = 0;
-            fixtureDef.density = 1;
-            //fixtureDef.restitution = 0.5f;
-
-            body.createFixture(fixtureDef);
-        }
     }
 
     private static int getRandomType() {

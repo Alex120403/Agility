@@ -120,4 +120,13 @@ class BlockFactory {
 
         return new Block(tile,body,layer,position,tileId);
     }
+
+    public static void refreshVariables() {
+        heroStartPos = null;
+        startWeaponPos = null;
+        portalPos = null;
+        exitPos = null;
+        enemiesPos.clear();
+        boostsPos.clear();
+    }
 }

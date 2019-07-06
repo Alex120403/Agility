@@ -2,6 +2,7 @@ package com.agility.game;
 
 import com.agility.game.UI.ItemInfo;
 import com.agility.game.UI.OnHitDamageView;
+import com.agility.game.UI.UI;
 import com.agility.game.Utils.AnimationWithOffset;
 import com.agility.game.Utils.LockedCamera;
 import com.agility.game.Utils.SimpleDirectionGestureDetector;
@@ -12,10 +13,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -41,8 +45,9 @@ public class Hero extends Actor {
     private Body body;
     public Body swordSwipe;
     private final World world;
+    private static double level = 1;
     private static Vector2 position,velocity;
-    private int direction = 1, wallTouchDirection, level;
+    private int direction = 1, wallTouchDirection;
     private Sprite currentFrame;
     public int damaged;
     private String currentAnimation = "idle";
@@ -55,6 +60,12 @@ public class Hero extends Actor {
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
     public static Sprite blood;
 
+    // Exp bar
+    private static Sprite expBar, expBarBackground;
+    private static BitmapFont expText;
+    private static float expBarOpacity;
+    private static boolean drawExpBar;
+
 
     private static final HashMap<String,AnimationWithOffset> animations = new HashMap<String, AnimationWithOffset>();
     private boolean anotherOneAttack;
@@ -65,6 +76,8 @@ public class Hero extends Actor {
     private Sound onGroundStep,rollSound;
     ArrayList<Enemy> enemies;
     private static final Random random = new Random();
+    private static int expDisplay,expTarget;
+
     //private Music runSound;
 
     public Hero(Vector2 position, World world, final Game game) {
@@ -93,6 +106,7 @@ public class Hero extends Actor {
 
         init("animations");
         init("default equipment");
+        init("exp bar");
         inventory = new Inventory();
 
 
@@ -103,7 +117,7 @@ public class Hero extends Actor {
                 if(avaliableJumps>0 && !isDied) {
                     avaliableJumps-=1;
                     body.setLinearVelocity(body.getLinearVelocity().x,0);
-                    body.applyLinearImpulse(new Vector2(0, 16000), new Vector2(0, 0), true);
+                    body.applyLinearImpulse(new Vector2(0, 15000), new Vector2(0, 0), true);
                     jumps[avaliableJumps].play();
                     isAttacking = false;
                     stabilizeSpeed();
@@ -187,6 +201,21 @@ public class Hero extends Actor {
 
     }
 
+    public static void frag() {
+        int exp = 0;
+        do {
+            exp = (int)(( 0.11-(random.nextDouble()/(100-level)) ) * 1000)/2;
+        } while (exp <= 30);
+        int oldLevel = (int)level;
+        level += exp/1000f;
+        if ((int)level > oldLevel) {
+            Game.log("Level up! Level: " + (int)level);
+        }
+        expDisplay = 0;
+        expTarget = exp;
+        drawExpBar();
+    }
+
     public void stop() {
         body.setLinearVelocity(0,0);
         if (hasWeapon) {
@@ -268,7 +297,7 @@ public class Hero extends Actor {
             endAttack();
         }
         currentFrame.setPosition(body.getPosition().x-9-direction*animations.get(currentAnimation).xOffset,body.getPosition().y-0.5f+animations.get(currentAnimation).yOffset);
-        currentFrame.setSize(50/2,37/2);
+        currentFrame.setSize(50f/2f,37f/2f);
         currentFrame.setFlip(direction == -1,false);
         currentFrame.draw(batch,parentAlpha);
         if(damaged > 0) {
@@ -277,6 +306,37 @@ public class Hero extends Actor {
 
         if(!stopped && !isRolling && !isDied) {
             stabilizeSpeed();
+        }
+        if(drawExpBar) {
+
+            expBar.setPosition(currentFrame.getX()+6.5f + 1.5f*direction ,currentFrame.getY() + 18);
+            expBarBackground.setPosition(expBar.getX(),expBar.getY());
+            expBarBackground.setSize(expBarBackground.getWidth(),0.5f);
+
+            expBarBackground.draw(batch,expBarOpacity);
+            expBar.setSize(expBarBackground.getWidth() * (float)((level - (int)level)),expBarBackground.getHeight());
+            expBar.draw(batch,expBarOpacity);
+            expBarOpacity-=(1-expBarOpacity)/25;
+            if(expBarOpacity <= 0.01f) {
+                expBarOpacity = 0.99f;
+                drawExpBar = false;
+            }
+            if(expTarget > expDisplay) {
+                expDisplay += (expTarget-expDisplay)/10;
+                UI.drawTextMessage = "Exp +" + expDisplay;
+            }
+
+            float cx = game.getStage().getCamera().position.x - game.getStage().getCamera().viewportWidth/2;
+            float cy = game.getStage().getCamera().position.y - game.getStage().getCamera().viewportHeight/2;
+            float expDrawTextX = (expBar.getX() - cx) * 7.5f;
+            float expDrawTextY = (expBar.getY() + 3 - cy) * 7.5f;
+            if(!Game.getUi().drawText) {
+                Game.getUi().drawText("Exp +" + expDisplay, expDrawTextX, expDrawTextY);
+            }
+            else {
+                Game.getUi().drawTextX = expDrawTextX;
+                Game.getUi().drawTextY = expDrawTextY;
+            }
         }
     }
 
@@ -439,6 +499,7 @@ public class Hero extends Actor {
             animations.put("cast",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("hero/cast",4).content),2,0, -8));
             animations.put("fall",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/fall",2).content),2,0, -8));
             animations.put("wall-slide",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/wall-slide",2).content),0,0, -8));
+            animations.put("hurt",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/hurt",3).content),0,0, -8));
 
 
 
@@ -453,12 +514,37 @@ public class Hero extends Actor {
             info.setItem(weapon);
         }
 
+        else if(request.equals("exp bar")) {
+            Pixmap expPixmap = new Pixmap(12,1,Pixmap.Format.RGBA8888);
+            expPixmap.setColor(1,176f/255f,46f/255f,1);
+            expPixmap.fill();
+            expBar = new Sprite(new Texture(expPixmap));
+
+            Pixmap expPixmapBackground = new Pixmap(12,1,Pixmap.Format.RGBA8888);
+            expPixmapBackground.setColor(0,0,0,1);
+            expPixmapBackground.fill();
+            expBarBackground = new Sprite(new Texture(expPixmapBackground));
+
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.size = 4;
+            parameter.color = Color.WHITE;
+            expText = generator.generateFont(parameter);
+        }
+
+    }
+
+    private static void drawExpBar() {
+        drawExpBar = true;
+        expBarOpacity = 0.99f;
+        Game.getUi().drawText = false;
     }
 
     public void damage(float deal) {
         this.health -= deal;
         damaged = 20;
         body.applyLinearImpulse(new Vector2(direction*-2999, 0), new Vector2(0, 0), true);
+        setAnimation("hurt");
     }
 
     public void addItem(Item item) {
@@ -565,7 +651,7 @@ public class Hero extends Actor {
     }
 
     public int getLevel() {
-        return level;
+        return (int)level;
     }
 
     public void hitEnemy(Enemy enemy) {

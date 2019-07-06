@@ -36,7 +36,6 @@ public class SimpleDirectionGestureDetector extends GestureDetector implements I
         return super.touchDown(x, y, pointer, button);
     }
 
-
     @Override
     public boolean touchUp(float x, float y, int pointer, int button) {
 

@@ -6,6 +6,7 @@ import com.agility.game.Utils.SimpleDirectionGestureDetector;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -20,13 +21,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class UI extends Stage {
     public boolean tapOnUI, swipeOpacityDecreaseUnlocked;
-    private final BitmapFont font;
+    private static BitmapFont font;
     private HeroHealthPanel healthPanel;
     private String message = "";
     private float opacity = 0.99f;
     private Game game;
     private Sprite point, end;
     private float swipeOpacity;
+    public boolean drawText;
+    public static String drawTextMessage;
+    public float drawTextX,drawTextY,drawTextOpacity;
 
     private static ShapeRenderer debugRenderer = new ShapeRenderer();
 
@@ -74,6 +78,14 @@ public class UI extends Stage {
         getBatch().begin();
         font.setColor(0.8f, 0.8f, 0.8f, opacity);
         font.draw(getBatch(), message, 40, 50);
+        if(drawText) {
+            font.setColor(0.8f, 0.8f, 0.8f, drawTextOpacity);
+            font.draw(getBatch(),drawTextMessage,drawTextX,drawTextY);
+            drawTextOpacity-=(1-drawTextOpacity)/25;
+            if(drawTextOpacity <= 0.01) {
+                drawText = false;
+            }
+        }
         Hero.blood.draw(Game.getUi().getBatch(), (float)Math.pow(1 - game.getHero().getHealth()/game.getHero().getMaxHealth(),2));
         if(game.getHero().damaged > 0) {
             Hero.blood.draw(Game.getUi().getBatch(),0.7f*(game.getHero().damaged/20f));
@@ -95,6 +107,14 @@ public class UI extends Stage {
 
         }
         return tapOnUI;
+    }
+
+    public void drawText(String text, float x, float y) {
+        drawText = true;
+        drawTextX = x;
+        drawTextY = y;
+        drawTextMessage = text;
+        drawTextOpacity = 0.99f;
     }
 
     @Override

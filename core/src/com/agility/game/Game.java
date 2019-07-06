@@ -7,6 +7,7 @@ import com.agility.game.UI.UI;
 import com.agility.game.WorldObjects.Block;
 import com.agility.game.Utils.*;
 import com.agility.game.WorldObjects.Coin;
+import com.agility.game.WorldObjects.ExitPortal;
 import com.agility.game.WorldObjects.Item;
 import com.agility.game.WorldObjects.StartWeapon;
 import com.badlogic.gdx.Gdx;
@@ -14,6 +15,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -30,6 +33,7 @@ import java.util.Random;
 public class Game extends com.badlogic.gdx.Game {
 
     // Enemy patterns
+    EnemyDef[] patterns = new EnemyDef[3];
     public static EnemyDef ENEMY_BANDIT;
     public static EnemyDef ENEMY_SKELETON;
     public static EnemyDef ENEMY_UNDEAD;
@@ -43,13 +47,20 @@ public class Game extends com.badlogic.gdx.Game {
     public static LockedCamera camera;
     private SpriteBatch batch;
     private Map map;
+    public static float zoom = 7.5f;
     private Hero hero;
     private boolean inMenu = true;
+
+    // Flash
+    private float flashOpacity = 0;
+    private boolean flash;
+    private static Sprite flashScreen;
 
 
     Block[][] block = new Block[128][72];
     public static StartWeapon startWeapon;
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+
 
     public Game() {
 
@@ -64,8 +75,6 @@ public class Game extends com.badlogic.gdx.Game {
             assets[i].renameTo(new File("E:\\Android\\Agility\\android\\assets\\enemies\\undead\\die-0"+assets[i].getName().replaceAll(".gif","")+".png"));
         }
         */
-        System.out.println("Program start");
-
         System.out.print("Init main menu........");
         init("main menu");
 
@@ -92,6 +101,7 @@ public class Game extends com.badlogic.gdx.Game {
             init("stage elements");
             System.out.print("Init ui...............");
             init("ui");
+            System.out.println("------------------------------------");
 
             inMenu = false;
         }
@@ -103,10 +113,10 @@ public class Game extends com.badlogic.gdx.Game {
 
     @Override
     public void render() {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
         if(!inMenu) {
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
             Gdx.gl.glClearColor(33f/255f,38f/255f,63f/255f,1);
             //Gdx.gl.glClearColor(Color.SKY.r,Color.SKY.g,Color.SKY.b,1);
             camera.update();
@@ -116,6 +126,19 @@ public class Game extends com.badlogic.gdx.Game {
             stage.act(Gdx.graphics.getDeltaTime());
             ui.act();
             ui.draw();
+            if(flash) {
+                if(flashOpacity >= 0.85) {
+                    finish();
+                    flash = false;
+                    flashOpacity = 0;
+                }
+                batch.begin();
+                flashScreen.setPosition(camera.position.x-camera.viewportWidth/2,camera.position.y-camera.viewportHeight/2);
+                flashScreen.draw(batch,flashOpacity);
+                flashOpacity+=0.035f;
+                batch.end();
+            }
+
             if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
                 getStage().addActor(new Coin(new Vector2(Hero.getPosition().x,Hero.getPosition().y),getMainWorld(),this));
 
@@ -126,6 +149,7 @@ public class Game extends com.badlogic.gdx.Game {
             }
             if (Gdx.input.isKeyPressed(Input.Keys.C)) {
                 debugRenderer.render(foreground, camera.combined);
+                flash = true;
             }
 
 
@@ -135,6 +159,14 @@ public class Game extends com.badlogic.gdx.Game {
             Gdx.gl.glClearColor(10f/100f,12f/100f,19.7f/100f,1);
             mainMenu.draw();
         }
+    }
+
+    // Finish current level
+    private void finish() {
+        inMenu = true;
+        enemies.clear();
+        BlockFactory.refreshVariables();
+        Gdx.input.setInputProcessor(new MainMenuInputProcessor(mainMenu));
     }
 
     @Override
@@ -180,6 +212,7 @@ public class Game extends com.badlogic.gdx.Game {
     }
 
     private void init(String request) {
+        long startTime = System.currentTimeMillis();
         if     (request.equalsIgnoreCase("box2D")) {
             background = new World(new Vector2(0,0),true);
             middle = new World(new Vector2(0,-10),true);
@@ -192,7 +225,7 @@ public class Game extends com.badlogic.gdx.Game {
             hero.setZIndex(3);
         }
         else if(request.equalsIgnoreCase("camera")) {
-            float abstractHeight = 720/7.5f;
+            float abstractHeight = 720/zoom;
             double w_div_h = Gdx.graphics.getWidth()/Gdx.graphics.getHeight();
             camera  = new LockedCamera(abstractHeight*(float)w_div_h,abstractHeight,hero);
         }
@@ -217,27 +250,42 @@ public class Game extends com.badlogic.gdx.Game {
         else if(request.equalsIgnoreCase("ui")) {
             ui = new UI(this);
             ui.addActor(MoneyMonitor.instance);
+            Pixmap fl = new Pixmap(1,1,Pixmap.Format.RGB888);
+            fl.setColor(1,1,1,1);
+            fl.fill();
+            flashScreen = new Sprite(new Texture(fl));
+
+            flashScreen.setSize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
             OnHitDamageView.init();
         }
 
         else if(request.equalsIgnoreCase("stage elements")) {
             Hero.setPosition(BlockFactory.heroStartPos);
+
             hero.init("body");
             stage.addActor(hero);
             ItemInfo.init();
             createStartSword();
             Coin.loadAtlases();
+            ExitPortal exitPortal = new ExitPortal(this,BlockFactory.exitPos);
+            exitPortal.addToWorld(stage);
+
+            enemies.clear();
+            for (int i = 0; i < BlockFactory.enemiesPos.size(); i++) {
+                enemies.add(new Enemy(patterns[new Random().nextInt(patterns.length)],middle,BlockFactory.enemiesPos.get(i),this));
+                System.out.println("Actor "+i+" added. Size = "+enemies.size());
+                stage.addActor(enemies.get(i));
+            }
         }
 
         else if(request.equalsIgnoreCase("enemies")) {
-            EnemyDef[] patterns = new EnemyDef[3];
+
             ENEMY_BANDIT = new EnemyDef();
             ENEMY_BANDIT.cooldown = 60;
             ENEMY_BANDIT.cooldownInStart = 30;
             ENEMY_BANDIT.attackRange = 15;
             ENEMY_BANDIT.visibilityY = 5;
             ENEMY_BANDIT.visibilityX = 50;
-            ENEMY_BANDIT.attackRange = 15;
             ENEMY_BANDIT.maxHealth = 300+Math.round(Math.random()-0.3)*100;
             ENEMY_BANDIT.runVelocity = 65;
             ENEMY_BANDIT.damageDealt = 75;
@@ -253,7 +301,6 @@ public class Game extends com.badlogic.gdx.Game {
             ENEMY_SKELETON = new EnemyDef();
             ENEMY_SKELETON.cooldown = 60;
             ENEMY_SKELETON.cooldownInStart = 5;
-            ENEMY_SKELETON.attackRange = 25;
             ENEMY_SKELETON.visibilityY = 5;
             ENEMY_SKELETON.visibilityX = 60;
             ENEMY_SKELETON.attackRange = 20;
@@ -275,7 +322,6 @@ public class Game extends com.badlogic.gdx.Game {
             ENEMY_UNDEAD.attackRange = 25;
             ENEMY_UNDEAD.visibilityY = 5;
             ENEMY_UNDEAD.visibilityX = 60;
-            ENEMY_UNDEAD.attackRange = 20;
             ENEMY_UNDEAD.maxHealth = 400+Math.round(Math.random()-0.3)*100;
             ENEMY_UNDEAD.runVelocity = 40;
             ENEMY_UNDEAD.damageDealt = 125;
@@ -288,19 +334,15 @@ public class Game extends com.badlogic.gdx.Game {
             patterns[2] = ENEMY_UNDEAD;
 
 
-            for (int i = 0; i < BlockFactory.enemiesPos.size(); i++) {
-                enemies.add(new Enemy(patterns[new Random().nextInt(patterns.length)],middle,BlockFactory.enemiesPos.get(i),this));
-                stage.addActor(enemies.get(i));
-            }
         }
         else if(request.equals("main menu")) {
             mainMenu = new MainMenu(this);
         }
-        System.out.println("Done");
+        System.out.println("Done (" + (System.currentTimeMillis() - startTime)/1000f + " s)");
     }
 
     private void createStartSword() {
-        ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,"Start sword",70,0.03f,1);
+        ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,"Beginner's sword",70,0.03f,1);
         if(BlockFactory.startWeaponPos != null) {
             startWeapon = new StartWeapon(BlockFactory.startWeaponPos, middle, this, info);
             info.setItem(startWeapon);
@@ -347,5 +389,9 @@ public class Game extends com.badlogic.gdx.Game {
     public static boolean removeFinger(float x, float y) {
         ui.swipeEnd(x,y);
         return false;
+    }
+
+    public void heroInPortal() {
+        flash = true;
     }
 }
