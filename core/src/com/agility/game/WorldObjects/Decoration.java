@@ -12,7 +12,6 @@ public class Decoration extends Actor {
     private Sprite sprite;
 
     public Decoration(String name, Vector2 position) {
-        System.out.println("Created decoration: "+name);
         setPosition(position.x,position.y);
         try {
             sprite = new Sprite(new Texture(Gdx.files.internal("objects/" + name + ".png")));

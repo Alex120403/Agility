@@ -79,7 +79,7 @@ public class Game extends com.badlogic.gdx.Game {
 
     @Override
     public void create() {
-        Gdx.gl.glClearColor(10f/100f,12f/100f,19.7f/100f,1);
+        Gdx.gl.glClearColor(10.2f/100f,11.8f/100f,19.2f/100f,1);
         /*File assetsDir = new File("E:\\Android\\Agility\\android\\assets\\enemies\\undead");
         File[] assets = assetsDir.listFiles();
         for (int i = 0; i < assets.length; i++) {
@@ -129,7 +129,7 @@ public class Game extends com.badlogic.gdx.Game {
         if(currentState == STATE_IN_GAME) {
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            Gdx.gl.glClearColor(33f/255f,38f/255f,63f/255f,1);
+            Gdx.gl.glClearColor(10.2f/100f,11.8f/100f,19.2f/100f,1);
             camera.update();
 
 
@@ -242,6 +242,7 @@ public class Game extends com.badlogic.gdx.Game {
 
     private void initLevel(Level level) {
         map = level.getMap();
+        System.out.println("Done");
     }
 
     private void init(String request) {
@@ -400,7 +401,7 @@ public class Game extends com.badlogic.gdx.Game {
                 hero.equip(save.equippedWeapon, true);
             }
             else {
-                System.out.println("Weapon is NULL");
+                //System.out.println("Weapon is NULL");
             }
         }
         System.out.println("Done (" + (System.currentTimeMillis() - startTime)/1000f + " s)");
@@ -470,7 +471,6 @@ public class Game extends com.badlogic.gdx.Game {
 
     public void openLevelSelectionMenu() {
         currentState = STATE_IN_LEVEL_SELECTION;
-        System.out.println("Opened level selection menu");
     }
 
     public static LevelSelectionMenu getLevelSelectionMenu() {

@@ -170,5 +170,16 @@ public class BlockFactory {
         exitPos = null;
         enemiesPos.clear();
         boostsPos.clear();
+
+        // Clear decorations positions
+        anvilsPos.clear();
+        barrelsPos.clear();
+        chestsPos.clear();
+        cobblestonesPos.clear();
+        firesPos.clear();
+        fountainsPos.clear();
+        pristsPos.clear();
+        signsPos.clear();
+        vasesPos.clear();
     }
 }

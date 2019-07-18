@@ -120,28 +120,12 @@ public class Hero extends Actor {
 
             @Override
             public void onUp() {
-                if(avaliableJumps>0 && !isDied) {
-                    avaliableJumps-=1;
-                    body.setLinearVelocity(body.getLinearVelocity().x,0);
-                    body.applyLinearImpulse(new Vector2(0, 15000), new Vector2(0, 0), true);
-                    jumps[avaliableJumps].play();
-                    isAttacking = false;
-                    stabilizeSpeed();
-                }
 
-                stopped = false;
             }
 
             @Override
             public void onRight() {
                 if(!isDied) {
-                    if (wallTouchDirection == -1 && !onGround && avaliableJumps != 2) {
-                        body.setLinearVelocity(0, 0);
-                        jumps[1].play();
-                        body.applyLinearImpulse(new Vector2(-999999999, 999999999), new Vector2(0, 0), true);
-                        wallTouchDirection = 0;
-                    }
-
                     direction = 1;
                     stopped = false;
                 }
@@ -150,13 +134,6 @@ public class Hero extends Actor {
             @Override
             public void onLeft() {
                 if(!isDied) {
-                    if (wallTouchDirection == 1 && !onGround && avaliableJumps != 2) {
-                        body.setLinearVelocity(0, 0);
-                        jumps[1].play();
-                        body.applyLinearImpulse(new Vector2(999999999, 999999999), new Vector2(0, 0), true);
-                        wallTouchDirection = 0;
-                    }
-
                     direction = -1;
                     stopped = false;
                 }
@@ -164,47 +141,95 @@ public class Hero extends Actor {
 
             @Override
             public void onDown() {
-                if(!onGround) {
-                    body.setLinearVelocity(0, -1999999999);
-                    setAnimation("fall");
-                }
-
+                if(!isDied)
+                    roll(direction);
             }
 
             @Override
             public void onTouch() {
-                if(!isDied) {
-                    if (!isAttacking) {
-                        body.setLinearVelocity(0, body.getLinearVelocity().y);
-                        if (hasWeapon) {
+                if(!isFacingToEnemy()) {
+                    jump();
+                }
+                else {
+                    if (!isDied) {
+                        if (!isAttacking) {
+                            body.setLinearVelocity(0, body.getLinearVelocity().y);
+                            if (hasWeapon) {
 
-                            swipes[random.nextInt(3)].play(1f);
-                            setAnimation("attack" + ((++attackOrder % 3) + 1));
+                                swipes[random.nextInt(3)].play(1f);
+                                setAnimation("attack" + ((++attackOrder % 3) + 1));
+                            } else {
+                                setAnimation("cast");
+                            }
+                            //direction = 0;
+                            isAttacking = true;
                         } else {
-                            setAnimation("cast");
+                            anotherOneAttack = true;
                         }
-                        //direction = 0;
-                        isAttacking = true;
-                    } else {
-                        anotherOneAttack = true;
                     }
                 }
-
             }
 
             @Override
             public void onRightDown() {
-                if(!isDied)
-                roll(1);
+
             }
 
             @Override
             public void onLeftDown() {
-                if(!isDied)
-                roll(-1);
+
             }
         },game));
 
+    }
+
+    private void jump() {
+        if(!isDied) {
+            if (wallTouchDirection == 0) {
+                if (avaliableJumps > 0 && !isDied) {
+                    avaliableJumps -= 1;
+                    body.setLinearVelocity(body.getLinearVelocity().x, 0);
+                    body.applyLinearImpulse(new Vector2(0, 15000), new Vector2(0, 0), true);
+                    jumps[avaliableJumps].play();
+                    isAttacking = false;
+                    stabilizeSpeed();
+                }
+
+                stopped = false;
+            } else if (wallTouchDirection == -1) {
+                if (!onGround && avaliableJumps != 2) {
+                    body.setLinearVelocity(0, 0);
+                    jumps[1].play();
+                    body.applyLinearImpulse(new Vector2(-999999999, 999999999), new Vector2(0, 0), true);
+                    wallTouchDirection = 0;
+                }
+
+                direction = 1;
+                stopped = false;
+            }
+            else {
+                if (wallTouchDirection == 1 && !onGround && avaliableJumps != 2) {
+                    body.setLinearVelocity(0, 0);
+                    jumps[1].play();
+                    body.applyLinearImpulse(new Vector2(999999999, 999999999), new Vector2(0, 0), true);
+                    wallTouchDirection = 0;
+                }
+
+                direction = -1;
+                stopped = false;
+            }
+        }
+    }
+
+    private boolean isFacingToEnemy() {
+        for (Enemy e : game.getEnemies()) {
+            if(!e.isDied() && Math.hypot(e.getBody().getPosition().x - position.x, e.getBody().getPosition().y - position.y) <= 40) {
+                return true;
+            }
+        }
+
+
+        return false;
     }
 
     public static void frag() {
@@ -490,7 +515,7 @@ public class Hero extends Actor {
 
             body.createFixture(fixtureDef);
             body.setUserData("player");
-
+            stop();
         }
         else if(request.equalsIgnoreCase("animations")) {
             animations.put("run",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("hero/run",6).content),2,0, -8));

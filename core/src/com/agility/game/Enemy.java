@@ -287,6 +287,9 @@ public class Enemy extends Actor {
         }
     }
 
+    public boolean isDied() {
+        return died;
+    }
 
     public void cooldown() {
         this.cooldown = DEFAULT_COOLDOWN;

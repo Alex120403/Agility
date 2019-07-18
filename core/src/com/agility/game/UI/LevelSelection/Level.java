@@ -13,6 +13,7 @@ public class Level {
     private Block[][] block;
     private String name;
     private Game game;
+    private int number;
 
     public Level(Game game, String name) {
         this.name = name;
@@ -20,7 +21,7 @@ public class Level {
     }
 
     private void init() {
-        map = MapParser.getInstance().parse(name + ".csv");
+        map = MapParser.getInstance().parse(name + ".amap");
         block = new Block[map.getCells().length][map.getCells()[0].length];
 
         for (int i = 0; i < block.length; i++) {
@@ -49,5 +50,13 @@ public class Level {
         game.prepare();
         init();
         game.start(this);
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public int getNumber() {
+        return number;
     }
 }
