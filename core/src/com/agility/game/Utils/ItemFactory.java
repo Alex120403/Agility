@@ -4,6 +4,7 @@ import com.agility.game.UI.ItemInfo;
 import com.agility.game.WorldObjects.Item;
 import com.agility.game.Game;
 
+import java.text.DecimalFormat;
 import java.util.Random;
 
 public class ItemFactory {
@@ -22,8 +23,9 @@ public class ItemFactory {
         } while (level <= 0);
         String durability = durabilities[swordId % 3];
         int damage = (int)(60 + 10 * level * (1f/(swordId % 3 + 1))+ random.nextInt(16));
-        Game.log("Level: "+level+" Damage: "+damage+" Mod: "+ (swordId % 3 + 1));
-        ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,names[swordId/3]+" "+PrettyLevel.toPretty(level)+" ("+durability + ")",damage,0.07f,level);
+        float criticalPercents = ((int)(3*(1f/(swordId % 3 + 1)))+random.nextInt(3)+level);
+
+        ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,names[swordId/3]+" "+PrettyLevel.toPretty(level)+" ("+durability + ")",damage,criticalPercents,level);
         Item item = null;
 
         item = new Item(game,"sword-0"+swordId+"",info);

@@ -3,6 +3,7 @@ package com.agility.game;
 import com.agility.game.Game;
 import com.agility.game.UI.MainMenuItem;
 import com.agility.game.UI.MenuItemEvent;
+import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.Utils.MainMenuInputProcessor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -18,10 +19,11 @@ public class MainMenu extends Stage {
     private Game game;
     public MainMenu(final Game game) {
         super();
+
         music = Gdx.audio.newMusic(Gdx.files.internal("music/mainMenu.mp3"));
         music.setLooping(true);
         music.play();
-        Gdx.input.setInputProcessor(new MainMenuInputProcessor(this));
+        Gdx.input.setInputProcessor(new MainMenuInputProcessor(this, game.getLevelSelectionMenu()));
         background = new Texture(Gdx.files.internal("mainMenu.png"));
         this.game = game;
         WIDTH = Gdx.graphics.getHeight()*16/9;
@@ -30,14 +32,14 @@ public class MainMenu extends Stage {
         continueGame = new MainMenuItem(new MenuItemEvent() {
             @Override
             public void handle() {
-                game.start();
+                game.openLevelSelectionMenu();
             }
         }, new Texture(Gdx.files.internal("buttons/continue.png")),Gdx.graphics.getHeight()/1.71f);
         addActor(continueGame);
         newGame = new MainMenuItem(new MenuItemEvent() {
             @Override
             public void handle() {
-                game.start();
+                game.openLevelSelectionMenu();
             }
         }, new Texture(Gdx.files.internal("buttons/newGame.png")),Gdx.graphics.getHeight()/2.18f);
         addActor(newGame);
@@ -61,10 +63,12 @@ public class MainMenu extends Stage {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        continueGame.touchDown(screenX,screenY);
-        newGame.touchDown(screenX,screenY);
-        settings.touchDown(screenX,screenY);
-        exit.touchDown(screenX,screenY);
+        if(game.getCurrentState() == Game.STATE_IN_MAIN_MENU) {
+            continueGame.touchDown(screenX, screenY);
+            newGame.touchDown(screenX, screenY);
+            settings.touchDown(screenX, screenY);
+            exit.touchDown(screenX, screenY);
+        }
         return super.touchDown(screenX, screenY, pointer, button);
     }
 

@@ -7,20 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.util.ArrayList;
 
 public class Inventory extends Actor {
-    private final Item[][] content = new Item[7][3];
+    private final ArrayList<Item> content = new ArrayList<Item>();
 
     public boolean add(Item item) {
-        for (int i = 0; i < content.length; i++) {
-            for (int j = 0; j < content[i].length; j++) {
-                if(content[i][j] == null) {
-                    content[i][j] = item;
-                    return true;
-                }
-            }
-        }
-        return false;
+        content.add(item);
+        return true;
     }
-    public Item[][] get() {
+    public ArrayList<Item> get() {
         return content;
     }
 

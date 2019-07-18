@@ -176,9 +176,12 @@ public class Enemy extends Actor {
             currentFrame.setPosition(dieposition.x + animations.get(currentAnimation).defaultXOffset - direction * animations.get(currentAnimation).xOffset, dieposition.y - 0.5f + animations.get(currentAnimation).yOffset);
 
         }
-        currentFrame.setScale(0.5f);
-        currentFrame.setFlip(direction == -1,false);
-        currentFrame.draw(batch,alpha);
+        if(Math.abs(Game.camera.position.x - position.x) < Game.camera.viewportWidth/1.75f &&
+                Math.abs(Game.camera.position.y - position.y) < Game.camera.viewportHeight/1.75f) {
+            currentFrame.setScale(0.5f);
+            currentFrame.setFlip(direction == -1, false);
+            currentFrame.draw(batch, alpha);
+        }
         if(isAttacking && animations.get("attack").animation.isAnimationFinished(stateTime)) {
             isAttacking = false;
             alreadyDealedDamage = false;

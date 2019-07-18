@@ -13,20 +13,25 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 
-public class ItemInfo extends Actor implements Disposable {
+import java.io.Serializable;
+
+public class ItemInfo extends Actor implements Disposable, Serializable {
     public static final int TYPE_WEAPON = 0;
     public static final int TYPE_ARMOR  = 1;
 
-    private static Sprite frame;
+    private static transient Sprite frame;
     private boolean vanish = true;
-    private Sprite itemIcon;
-    private static BitmapFont nameFont, info;
+    private transient Sprite itemIcon;
+    private transient static BitmapFont nameFont, info;
     private String name;
     private int type,vanishTimer = 480;
     private int parameter1;
     private float parameter2;
-    private Item item;
+    //private transient Game Game;
     private int level;
+
+    public ItemInfo() {
+    }
 
     public ItemInfo(int type, String name, int parameter1, float parameter2, int level) {
         this.type = type;
@@ -47,16 +52,14 @@ public class ItemInfo extends Actor implements Disposable {
     @Override
     public Actor hit(float x, float y, boolean touchable) {
         if(x >= frame.getX() && x <= frame.getX()+frame.getWidth() && y >= frame.getY() && y <= frame.getY()+frame.getHeight()) {
-            item.getGame().getHero().equip(item);
+            Game.getHero().equipLastItem();
             Game.getUi().getActors().removeValue(this, false);
             Game.getUi().tapOnUI = true;
         }
         return super.hit(x, y, touchable);
     }
 
-
     public void setItem(Item item) {
-        this.item = item;
         this.name = item.getName();
         this.parameter1 = item.getParameter1();
         this.parameter2 = item.getParameter2();
@@ -66,6 +69,7 @@ public class ItemInfo extends Actor implements Disposable {
             itemIcon = new Sprite(item.getIcon().getTexture());
             itemIcon.setPosition(frame.getX() + 28, frame.getY() + 73);
             itemIcon.setSize(64, 64);
+            itemIcon.setColor(item.color);
         }
     }
 
@@ -94,10 +98,6 @@ public class ItemInfo extends Actor implements Disposable {
         if (vanishTimer <= 0) {
             frame.setPosition(frame.getX(), frame.getY() + 2);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            item.getGame().getHero().equip(item);
-            Game.getUi().getActors().removeValue(this, false);
-        }
         if (itemIcon != null) {
             itemIcon.setPosition(frame.getX() + 28, frame.getY() + 73);
             itemIcon.setSize(64, 64);
@@ -105,28 +105,27 @@ public class ItemInfo extends Actor implements Disposable {
             itemIcon.draw(batch);
             nameFont.draw(batch, name, frame.getX() + 20, frame.getY() + 184);
             info.draw(batch, ": " + parameter1, frame.getX() + 148, frame.getY() + 148);
-            info.draw(batch, ": " + parameter2 * 100 + "%", frame.getX() + 148, frame.getY() + 118);
-            if (item.getGame().getHero().getWeapon().getParameter1() < parameter1) {
+            info.draw(batch, ": " + (int)parameter2 + "%", frame.getX() + 148, frame.getY() + 118);
+            if (Game.getHero().getWeapon().getParameter1() < parameter1) {
                 info.setColor(Color.GREEN);
-                info.draw(batch, "(+" + (parameter1 - item.getGame().getHero().getWeapon().getParameter1()) + ")", frame.getX() + 208, frame.getY() + 148);
+                info.draw(batch, "(+" + (parameter1 - Game.getHero().getWeapon().getParameter1()) + ")", frame.getX() + 208, frame.getY() + 148);
                 info.setColor(Color.WHITE);
-            } else if (item.getGame().getHero().getWeapon().getParameter1() > parameter1) {
+            } else if (Game.getHero().getWeapon().getParameter1() > parameter1) {
                 info.setColor(Color.RED);
-                info.draw(batch, "(" + (parameter1 - item.getGame().getHero().getWeapon().getParameter1()) + ")", frame.getX() + 208, frame.getY() + 148);
+                info.draw(batch, "(" + (parameter1 - Game.getHero().getWeapon().getParameter1()) + ")", frame.getX() + 208, frame.getY() + 148);
                 info.setColor(Color.WHITE);
             } else {
                 info.setColor(Color.ORANGE);
                 info.draw(batch, "(+0)", frame.getX() + 208, frame.getY() + 148);
                 info.setColor(Color.WHITE);
             }
-
-            if (item.getGame().getHero().getWeapon().getParameter2() < parameter2) {
+            if (Game.getHero().getWeapon().getParameter2() < parameter2) {
                 info.setColor(Color.GREEN);
-                info.draw(batch, "(+" + (parameter2 - item.getGame().getHero().getWeapon().getParameter2()) * 100 + "%)", frame.getX() + 208, frame.getY() + 118);
+                info.draw(batch, "(+" + (int)(parameter2 - Game.getHero().getWeapon().getParameter2())+ "%)", frame.getX() + 208, frame.getY() + 118);
                 info.setColor(Color.WHITE);
-            } else if (item.getGame().getHero().getWeapon().getParameter2() > parameter2) {
+            } else if (Game.getHero().getWeapon().getParameter2() > parameter2) {
                 info.setColor(Color.RED);
-                info.draw(batch, "(" + (parameter2 - item.getGame().getHero().getWeapon().getParameter2()) * 100 + "%)", frame.getX() + 208, frame.getY() + 118);
+                info.draw(batch, "(" + (int)(parameter2 - Game.getHero().getWeapon().getParameter2())+ "%)", frame.getX() + 208, frame.getY() + 118);
                 info.setColor(Color.WHITE);
             } else {
                 info.setColor(Color.ORANGE);

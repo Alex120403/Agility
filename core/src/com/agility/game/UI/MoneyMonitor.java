@@ -52,6 +52,14 @@ public class MoneyMonitor extends Actor {
         update();
     }
 
+    public static void setCoins(int money) {
+        MoneyMonitor.money = money;
+    }
+
+    public static void setDiamonds(int diamonds) {
+        MoneyMonitor.diamonds = diamonds;
+    }
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
         animation.getKeyFrame(stateTime,true).draw(batch,alpha);
@@ -65,5 +73,13 @@ public class MoneyMonitor extends Actor {
 
     private static void update() {
         alpha = 0.99999f;
+    }
+
+    public static int getMoney() {
+        return money;
+    }
+
+    public static int getDiamonds() {
+        return diamonds;
     }
 }

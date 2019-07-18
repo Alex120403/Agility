@@ -94,6 +94,7 @@ public class UI extends Stage {
         end.draw(getBatch());
         getBatch().end();
         opacity-=(1-opacity)/25;
+        //log("FPS: "+Gdx.graphics.getFramesPerSecond());
     }
 
     public boolean tap(int x, int y) {
@@ -153,4 +154,7 @@ public class UI extends Stage {
         Gdx.gl.glLineWidth(1);
     }
 
+    public void logFPS() {
+        Game.log("FPS: "+Gdx.graphics.getFramesPerSecond());
+    }
 }

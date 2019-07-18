@@ -32,9 +32,11 @@ public class Block extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        if(tileId!= 0 && tileId != 15) {
-            batch.draw(tile, position.x, position.y);
-        }
+
+            if (tileId != 0 && tileId != 15) {
+                batch.draw(tile, position.x, position.y);
+            }
+
     }
 
     public int getLayer() {

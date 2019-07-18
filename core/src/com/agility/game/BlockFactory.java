@@ -13,13 +13,24 @@ import com.badlogic.gdx.physics.box2d.World;
 
 import java.util.ArrayList;
 
-class BlockFactory {
+public class BlockFactory {
     private static Texture atlas;
     public static final int TILES_FOR_X = 16;
 
     private static final ArrayList<Integer> midLayerIds = new ArrayList<Integer>();
     private static final ArrayList<Integer> fgLayerIds = new ArrayList<Integer>();
     private static final ArrayList<Integer> reserv = new ArrayList<Integer>();
+
+    // Decorations
+    public static ArrayList<Vector2> anvilsPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> barrelsPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> chestsPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> cobblestonesPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> firesPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> fountainsPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> pristsPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> signsPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> vasesPos = new ArrayList<Vector2>();
 
 
     private static final BlockFactory ourInstance = new BlockFactory();
@@ -30,7 +41,7 @@ class BlockFactory {
     public static Vector2 portalPos;
     public static Vector2 exitPos;
 
-    static BlockFactory getInstance() {
+    public static BlockFactory getInstance() {
         if (atlas == null) {
             atlas = new Texture(Gdx.files.internal("block_tiles.png"));
         }
@@ -40,23 +51,25 @@ class BlockFactory {
     private BlockFactory() {
 
         final int[] ml = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
-                34, 35, 36, 38, 39, 40, 41, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52,
-                59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 74, 75,
-                76, 77, 78, 79, 80, 82,83,84,91,92,93,95,98,99,100,107,108,109};
+                34, 35, 36, 38, 40, 41, 43, 44, 45, 46, 47, 48, 49,  51, 52,
+                59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 74, 75,
+                76, 77, 78, 79, 80, 82,83,92,93,95,98,99,100,107,108,109};
         for (int i = 0; i < ml.length; i++) {
             midLayerIds.add(ml[i]);
         }
 
-        final int[] fgl = {90,106,42,58,94,11,111,141,156,123,124,125,126,155,156,157,158,159,168,169,170};
+        final int[] fgl = {90,106,42,58,94,11,111,141,156,123,124,125,126,155,156,157,158,159,168,169,170,50,165, 61, 170,91};
         for (int i = 0; i < fgl.length; i++) {
             fgLayerIds.add(fgl[i]);
         }
-        final int[] reserved = {181, 182, 183, 184, 185, 186};
+        final int[] reserved = {181, 182, 183, 184, 185, 186, 141, 142, 143, 157, 158, 159, 173, 174, 175};
         for (int i = 0; i < reserved.length; i++) {
             reserv.add(reserved[i]);
         }
     }
     public Block create(int tileId, Vector2 position, World bg, World mid, World fg) {
+        TextureRegion tile = null;
+
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.StaticBody;
         def.position.x = position.x+4;
@@ -80,9 +93,6 @@ class BlockFactory {
             body.createFixture(fixtureDef);
             body.setUserData("block");
         }
-        else if(fgLayerIds.contains(tileId)) {
-            layer = 4;
-        }
         else if(reserv.contains(tileId)) {
             switch (tileId) {
                 case (181):
@@ -103,8 +113,38 @@ class BlockFactory {
                 case (186):
                     portalPos = position;
                     break;
+
+                // Decorations
+                case (141):
+                    anvilsPos.add(position);
+                    break;
+                case (142):
+                    barrelsPos.add(position);
+                    break;
+                case (143):
+                    chestsPos.add(position);
+                    break;
+                case (157):
+                    cobblestonesPos.add(position);
+                    break;
+                case (158):
+                    firesPos.add(position);
+                    break;
+                case (159):
+                    fountainsPos.add(position);
+                    break;
+                case (173):
+                    pristsPos.add(position);
+                    break;
+                case (174):
+                    signsPos.add(position);
+                    break;
+                case (175):
+                    vasesPos.add(position);
+                    break;
             }
             layer = 1;
+            tile = new TextureRegion(atlas, 0, 0, 8, 8);
         }
         else {
             layer = 1;
@@ -114,7 +154,9 @@ class BlockFactory {
 
 
         Vector2 tilePosition = new Vector2(tileId%TILES_FOR_X,tileId/TILES_FOR_X);
-        TextureRegion tile = new TextureRegion(atlas,(int)tilePosition.x*8,(int)tilePosition.y*8,8,8);
+        if(tile == null) {
+            tile = new TextureRegion(atlas, (int) tilePosition.x * 8, (int) tilePosition.y * 8, 8, 8);
+        }
 
 
 

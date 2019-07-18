@@ -4,6 +4,7 @@ import com.agility.game.UI.ItemInfo;
 import com.agility.game.UI.OnHitDamageView;
 import com.agility.game.UI.UI;
 import com.agility.game.Utils.AnimationWithOffset;
+import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.Utils.LockedCamera;
 import com.agility.game.Utils.SimpleDirectionGestureDetector;
 import com.agility.game.Utils.SpritePack;
@@ -42,26 +43,31 @@ import box2dLight.PointLight;
 import box2dLight.RayHandler;
 
 public class Hero extends Actor {
+
+    public static Sprite blood;
+    private Sprite currentFrame;
+    private static Sprite expBar, expBarBackground;
+
     private Body body;
     public Body swordSwipe;
     private final World world;
     private static double level = 1;
     private static Vector2 position,velocity;
     private int direction = 1, wallTouchDirection;
-    private Sprite currentFrame;
+
     public int damaged;
     private String currentAnimation = "idle";
-    private float stateTime = 0, maxHealth = 1000,health = maxHealth, afterRollingSlowlinessTimer;
+    private float stateTime = 0, maxHealth = GameBalanceConstants.DEFAULT_HERO_MAX_HEALTH,health = maxHealth, afterRollingSlowlinessTimer;
     private int touchings = 0, avaliableJumps = 2, attackOrder, rollingTimer, rollDirection;
     private boolean onGround = true, isAttacking, hasWeapon, isSwiped, isDied, isRolling;
     private Game game;
     private transient ItemInfo itemInfoInEdge;
     private Inventory inventory;
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
-    public static Sprite blood;
+
 
     // Exp bar
-    private static Sprite expBar, expBarBackground;
+
     private static BitmapFont expText;
     private static float expBarOpacity;
     private static boolean drawExpBar;
@@ -238,10 +244,14 @@ public class Hero extends Actor {
     }
 
     public void equip(Item item) {
+        equip(item, false);
+    }
+
+    public void equip(Item item, boolean silent) {
         if(item.getType() == ItemInfo.TYPE_WEAPON) {
             weapon = item;
             hasWeapon = true;
-            if(Game.getUi() != null) {
+            if(Game.getUi() != null && !silent) {
                 Game.log("Equipped: " + weapon.getName() + ", " + weapon.getParameter1() + " damage");
             }
         }
@@ -272,7 +282,6 @@ public class Hero extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-
         if(Gdx.input.isKeyPressed(Input.Keys.T)) {
             maxHealth++;
         }
@@ -329,7 +338,7 @@ public class Hero extends Actor {
             float cx = game.getStage().getCamera().position.x - game.getStage().getCamera().viewportWidth/2;
             float cy = game.getStage().getCamera().position.y - game.getStage().getCamera().viewportHeight/2;
             float expDrawTextX = (expBar.getX() - cx) * 7.5f;
-            float expDrawTextY = (expBar.getY() + 3 - cy) * 7.5f;
+            float expDrawTextY = (expBar.getY() + 4 - cy) * 7.5f;
             if(!Game.getUi().drawText) {
                 Game.getUi().drawText("Exp +" + expDisplay, expDrawTextX, expDrawTextY);
             }
@@ -507,11 +516,18 @@ public class Hero extends Actor {
         }
 
         else if(request.equals("default equipment")) {
-            ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,"Fists",60,0.02f,1);
-            weapon = new Item(game,null,info);
-            equip(weapon);
-            hasWeapon = false;
-            info.setItem(weapon);
+            if(weapon == null) {
+                ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON, "Fists", 60, 2, 1);
+                weapon = new Item(game, null, info);
+                equip(weapon);
+                info.setItem(weapon);
+                hasWeapon = false;
+            }
+            else {
+                hasWeapon = true;
+            }
+
+
         }
 
         else if(request.equals("exp bar")) {
@@ -634,8 +650,8 @@ public class Hero extends Actor {
         hasWeapon = true;
     }
 
-    public float getMaxHealth() {
-        return maxHealth;
+    public int getMaxHealth() {
+        return (int)maxHealth;
     }
 
     public Item getWeapon() {
@@ -657,14 +673,26 @@ public class Hero extends Actor {
     public void hitEnemy(Enemy enemy) {
         float damage = weapon.getParameter1();
         damage += damage * ((new Random().nextInt(11)-5)/100f);
-        boolean critical = Math.random()<weapon.getParameter2();
+        boolean critical = Math.random()<(weapon.getParameter2()/100f);
         if(critical) {
             damage *= 1.5f;  // Critical strike
         }
         enemy.damage((int)damage);
-        Gdx.input.vibrate(60);
+        Gdx.input.vibrate(20);
         float cx = game.getStage().getCamera().position.x - game.getStage().getCamera().viewportWidth/2;
         float cy = game.getStage().getCamera().position.y - game.getStage().getCamera().viewportHeight/2;
         Game.getUi().addActor(new OnHitDamageView((int)damage,new Vector2((enemy.getBody().getPosition().x+3 - cx) * 7.5f,(enemy.getBody().getPosition().y+6 - cy) * 7.5f),critical));
+    }
+
+    public static void setLevel(double level) {
+        Hero.level = level;
+    }
+
+    public void setMaxHealth(float maxHealth) {
+        this.maxHealth = maxHealth;
+    }
+
+    public void equipLastItem() {
+        equip(inventory.get().get(inventory.get().size()-1));
     }
 }

@@ -3,6 +3,7 @@ package com.agility.game.WorldObjects;
 import com.agility.game.Game;
 import com.agility.game.Hero;
 import com.agility.game.UI.ItemInfo;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,20 +12,25 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Item extends Actor {
-    private Sprite icon;
-    Game game;
+public class Item extends Actor implements Serializable {
+    private transient Sprite icon;
     private boolean alreadyStoppedHero;
     ItemInfo info;
+    public transient Color color;
+
+    public Item() {
+    }
+
     public Item(Game game, String iconName, ItemInfo info) {
         super();
         this.info = info;
         if(iconName != null) {
             icon = new Sprite(new Texture("items/"+iconName + ".png"));
         }
-        this.game = game;
+        color = new Color((float)Math.random()*2,(float)Math.random()*2,(float)Math.random()*2,1);
     }
     public void addToWorld(Stage stage, Vector2 position) {
         stage.addActor(this);
@@ -33,6 +39,7 @@ public class Item extends Actor {
             icon.setPosition(position.x, position.y + 1);
             icon.setFlip(true, false);
             icon.setSize(8, 8);
+            icon.setColor(color);
         }
     }
 
@@ -64,9 +71,6 @@ public class Item extends Actor {
         return info;
     }
 
-    public Game getGame() {
-        return game;
-    }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
@@ -81,8 +85,8 @@ public class Item extends Actor {
         if(icon != null) {
             if (Math.abs(Hero.getPosition().x - (icon.getX() + icon.getWidth() / 2)) < 4 &&
                     Math.abs(Hero.getPosition().y - icon.getY()) < 5 && !alreadyStoppedHero) {
-                game.getHero().addItem(this);
-                game.getStage().getActors().removeValue(this,false);
+                Game.getHero().addItem(this);
+                Game.getStage().getActors().removeValue(this,false);
                 alreadyStoppedHero = true;
             } else if (alreadyStoppedHero && !(Hero.getPosition().x >= icon.getX()-6 && Hero.getPosition().x <= icon.getX() + icon.getWidth() &&
                     Math.abs(Hero.getPosition().y - icon.getY()) < 5)) {

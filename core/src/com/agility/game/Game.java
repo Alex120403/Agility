@@ -1,12 +1,16 @@
 package com.agility.game;
 
 import com.agility.game.UI.ItemInfo;
+import com.agility.game.UI.LevelSelection.Level;
+import com.agility.game.UI.LevelSelection.LevelSelectionMenu;
 import com.agility.game.UI.MoneyMonitor;
 import com.agility.game.UI.OnHitDamageView;
 import com.agility.game.UI.UI;
+import com.agility.game.WorldObjects.AnimatedDecoration;
 import com.agility.game.WorldObjects.Block;
 import com.agility.game.Utils.*;
 import com.agility.game.WorldObjects.Coin;
+import com.agility.game.WorldObjects.Decoration;
 import com.agility.game.WorldObjects.ExitPortal;
 import com.agility.game.WorldObjects.Item;
 import com.agility.game.WorldObjects.StartWeapon;
@@ -20,6 +24,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -38,18 +43,24 @@ public class Game extends com.badlogic.gdx.Game {
     public static EnemyDef ENEMY_SKELETON;
     public static EnemyDef ENEMY_UNDEAD;
 
+    // Application states
+    public static final int STATE_IN_MAIN_MENU = 0;
+    public static final int STATE_IN_LEVEL_SELECTION = 1;
+    public static final int STATE_IN_GAME = 2;
+
 
     private World background,middle,foreground;
     private Box2DDebugRenderer debugRenderer;
-    private Stage stage;
+    private static Stage stage;
     private static UI ui;
     private static MainMenu mainMenu;
+    private static LevelSelectionMenu levelSelectionMenu;
     public static LockedCamera camera;
     private SpriteBatch batch;
     private Map map;
     public static float zoom = 7.5f;
-    private Hero hero;
-    private boolean inMenu = true;
+    private static Hero hero;
+    private int currentState;
 
     // Flash
     private float flashOpacity = 0;
@@ -76,34 +87,36 @@ public class Game extends com.badlogic.gdx.Game {
         }
         */
         System.out.print("Init main menu........");
+        init("level selection menu");
         init("main menu");
-
+        Gdx.graphics.setVSync(true);
     }
 
-    public void start() {
+    public void start(Level level) {
+        System.out.println("Starting level: "+level.getName());
+
         mainMenu.music.stop();
         mainMenu.music.dispose();
 
-        if(inMenu) {
-            System.out.print("Init box2d............");
-            init("box2d");
-            System.out.print("Init hero.............");
-            init("hero");
-            System.out.print("Init camera...........");
-            init("camera");
-            System.out.print("Init stage............");
-            init("stage");
+
+
+
+        if(currentState == STATE_IN_LEVEL_SELECTION) {
+
             System.out.print("Init map..............");
-            init("map");
+            initLevel(level);
             System.out.print("Init enemies..........");
             init("enemies");
             System.out.print("Init stage elements...");
             init("stage elements");
             System.out.print("Init ui...............");
             init("ui");
+            System.out.print("Init saves............");
+            init("saves");
             System.out.println("------------------------------------");
 
-            inMenu = false;
+            currentState = STATE_IN_GAME;
+
         }
     }
 
@@ -113,17 +126,16 @@ public class Game extends com.badlogic.gdx.Game {
 
     @Override
     public void render() {
-
-
-        if(!inMenu) {
+        if(currentState == STATE_IN_GAME) {
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
             Gdx.gl.glClearColor(33f/255f,38f/255f,63f/255f,1);
-            //Gdx.gl.glClearColor(Color.SKY.r,Color.SKY.g,Color.SKY.b,1);
             camera.update();
 
-            stage.getBatch().setProjectionMatrix(camera.combined);
+
             stage.draw();
             stage.act(Gdx.graphics.getDeltaTime());
+            ui.logFPS();
             ui.act();
             ui.draw();
             if(flash) {
@@ -155,18 +167,21 @@ public class Game extends com.badlogic.gdx.Game {
 
             middle.step((1 / 100f), 4, 4);
         }
-        else {
+        else if(currentState == STATE_IN_MAIN_MENU){
             Gdx.gl.glClearColor(10f/100f,12f/100f,19.7f/100f,1);
             mainMenu.draw();
+        }
+        else if(currentState == STATE_IN_LEVEL_SELECTION){
+            levelSelectionMenu.draw();
         }
     }
 
     // Finish current level
     private void finish() {
-        inMenu = true;
+        currentState = STATE_IN_MAIN_MENU;
         enemies.clear();
         BlockFactory.refreshVariables();
-        Gdx.input.setInputProcessor(new MainMenuInputProcessor(mainMenu));
+        Gdx.input.setInputProcessor(new MainMenuInputProcessor(mainMenu, levelSelectionMenu));
     }
 
     @Override
@@ -186,14 +201,28 @@ public class Game extends com.badlogic.gdx.Game {
 
     @Override
     public void dispose() {
-        if(!inMenu) {
+        if(currentState == STATE_IN_GAME) {
             batch.dispose();
             stage.dispose();
             debugRenderer.dispose();
         }
         mainMenu.dispose();
+        levelSelectionMenu.dispose();
+        Save save = savedProgress();
+        save.save();
     }
 
+    private Save savedProgress() {
+        Save save = new Save();
+        save.coins = MoneyMonitor.getMoney();
+        save.diamonds = MoneyMonitor.getDiamonds();
+        if(hero != null) {
+            save.heroMaxHealth = hero.getMaxHealth();
+            save.passedLevels = 0;
+            save.equippedWeapon = hero.getWeapon();
+        }
+        return save;
+    }
 
 
     public void addRandomItem(Vector2 position, boolean fromBoss) {
@@ -209,6 +238,10 @@ public class Game extends com.badlogic.gdx.Game {
 
     public void addRandomItem(Vector2 position) {
         addRandomItem(position,false);
+    }
+
+    private void initLevel(Level level) {
+        map = level.getMap();
     }
 
     private void init(String request) {
@@ -232,21 +265,8 @@ public class Game extends com.badlogic.gdx.Game {
         else if(request.equalsIgnoreCase("stage")) {
             batch = new SpriteBatch();
             stage = new Stage(new ExtendViewport(camera.viewportWidth, camera.viewportHeight, camera),batch);
-
+            stage.getBatch().setProjectionMatrix(camera.combined);
         }
-        else if(request.equalsIgnoreCase("map")) {
-            map = MapParser.getInstance().parse("big.csv");
-            for (int i = 0; i < block.length; i++) {
-                for (int j = 0; j < block[0].length; j++) {
-                    block[i][j] = BlockFactory.getInstance().create(map.getCells()[i][j],new Vector2(8*i,8*j),background,middle,foreground);
-
-                    block[i][j].setZIndex(block[i][j].layer);
-                    stage.addActor(block[i][j]);
-                }
-            }
-
-        }
-
         else if(request.equalsIgnoreCase("ui")) {
             ui = new UI(this);
             ui.addActor(MoneyMonitor.instance);
@@ -273,9 +293,39 @@ public class Game extends com.badlogic.gdx.Game {
             enemies.clear();
             for (int i = 0; i < BlockFactory.enemiesPos.size(); i++) {
                 enemies.add(new Enemy(patterns[new Random().nextInt(patterns.length)],middle,BlockFactory.enemiesPos.get(i),this));
-                System.out.println("Actor "+i+" added. Size = "+enemies.size());
                 stage.addActor(enemies.get(i));
             }
+
+
+            // Decorations
+            for (int i = 0; i < BlockFactory.anvilsPos.size(); i++) {
+                stage.addActor(new Decoration("anvil", BlockFactory.anvilsPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.barrelsPos.size(); i++) {
+                stage.addActor(new Decoration("barrel", BlockFactory.barrelsPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.chestsPos.size(); i++) {
+                stage.addActor(new Decoration("chest", BlockFactory.chestsPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.cobblestonesPos.size(); i++) {
+                //stage.addActor(new Decoration("cobblestone", BlockFactory.cobblestonesPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.firesPos.size(); i++) {
+                stage.addActor(new AnimatedDecoration("fire", BlockFactory.firesPos.get(i),0.15f,6));
+            }
+            for (int i = 0; i < BlockFactory.fountainsPos.size(); i++) {
+                stage.addActor(new AnimatedDecoration("fountain", BlockFactory.fountainsPos.get(i), 0.15f, 6));
+            }
+            for (int i = 0; i < BlockFactory.pristsPos.size(); i++) {
+                stage.addActor(new Decoration("priest", BlockFactory.pristsPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.signsPos.size(); i++) {
+                stage.addActor(new Decoration("sign", BlockFactory.signsPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.vasesPos.size(); i++) {
+                stage.addActor(new Decoration("vase", BlockFactory.vasesPos.get(i)));
+            }
+
         }
 
         else if(request.equalsIgnoreCase("enemies")) {
@@ -332,17 +382,32 @@ public class Game extends com.badlogic.gdx.Game {
             ENEMY_UNDEAD.animations.put("die",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("enemies/undead/die",13).content),1,-8,-30));
             ENEMY_UNDEAD.animations.put("attack",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("enemies/undead/attack",18).content),0,-16, -23));
             patterns[2] = ENEMY_UNDEAD;
-
-
         }
         else if(request.equals("main menu")) {
             mainMenu = new MainMenu(this);
+        }
+        else if(request.equals("level selection menu")) {
+            levelSelectionMenu = new LevelSelectionMenu(this);
+        }
+        else if(request.equals("saves")) {
+            Save save = new Save();
+            save.load();
+            MoneyMonitor.setCoins(save.coins);
+            MoneyMonitor.setDiamonds(save.diamonds);
+            Hero.setLevel(save.heroLevel);
+            hero.setMaxHealth(save.heroMaxHealth);
+            if(save.equippedWeapon != null) {
+                hero.equip(save.equippedWeapon, true);
+            }
+            else {
+                System.out.println("Weapon is NULL");
+            }
         }
         System.out.println("Done (" + (System.currentTimeMillis() - startTime)/1000f + " s)");
     }
 
     private void createStartSword() {
-        ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,"Beginner's sword",70,0.03f,1);
+        ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,"Beginner's sword",70,3,1);
         if(BlockFactory.startWeaponPos != null) {
             startWeapon = new StartWeapon(BlockFactory.startWeaponPos, middle, this, info);
             info.setItem(startWeapon);
@@ -354,7 +419,7 @@ public class Game extends com.badlogic.gdx.Game {
         return camera;
     }
 
-    public Hero getHero() {
+    public static Hero getHero() {
         return hero;
     }
 
@@ -374,7 +439,7 @@ public class Game extends com.badlogic.gdx.Game {
         return middle;
     }
 
-    public Stage getStage() {
+    public static Stage getStage() {
         return stage;
     }
 
@@ -393,5 +458,37 @@ public class Game extends com.badlogic.gdx.Game {
 
     public void heroInPortal() {
         flash = true;
+    }
+
+    public World getBackgroundWorld() {
+        return background;
+    }
+
+    public World getForegroundWorld() {
+        return foreground;
+    }
+
+    public void openLevelSelectionMenu() {
+        currentState = STATE_IN_LEVEL_SELECTION;
+        System.out.println("Opened level selection menu");
+    }
+
+    public static LevelSelectionMenu getLevelSelectionMenu() {
+        return levelSelectionMenu;
+    }
+
+    public void prepare() {
+        System.out.print("Init box2d............");
+        init("box2d");
+        System.out.print("Init hero.............");
+        init("hero");
+        System.out.print("Init camera...........");
+        init("camera");
+        System.out.print("Init stage............");
+        init("stage");
+    }
+
+    public int getCurrentState() {
+        return currentState;
     }
 }
