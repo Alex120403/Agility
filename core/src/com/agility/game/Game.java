@@ -1,14 +1,19 @@
 package com.agility.game;
 
+import com.agility.game.UI.BoosterChoice;
+import com.agility.game.UI.DamageBoosterChoice;
+import com.agility.game.UI.HealthBoosterChoice;
 import com.agility.game.UI.ItemInfo;
 import com.agility.game.UI.LevelSelection.Level;
 import com.agility.game.UI.LevelSelection.LevelSelectionMenu;
+import com.agility.game.UI.MoneyBoosterChoice;
 import com.agility.game.UI.MoneyMonitor;
 import com.agility.game.UI.OnHitDamageView;
 import com.agility.game.UI.UI;
 import com.agility.game.WorldObjects.AnimatedDecoration;
 import com.agility.game.WorldObjects.Block;
 import com.agility.game.Utils.*;
+import com.agility.game.WorldObjects.Booster;
 import com.agility.game.WorldObjects.Coin;
 import com.agility.game.WorldObjects.Decoration;
 import com.agility.game.WorldObjects.ExitPortal;
@@ -16,6 +21,7 @@ import com.agility.game.WorldObjects.Item;
 import com.agility.game.WorldObjects.StartWeapon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -58,6 +64,7 @@ public class Game extends com.badlogic.gdx.Game {
     public static LockedCamera camera;
     private SpriteBatch batch;
     private Map map;
+    private BoosterChoice currentChoice;
     public static float zoom = 7.5f;
     private static Hero hero;
     private int currentState;
@@ -71,6 +78,7 @@ public class Game extends com.badlogic.gdx.Game {
     Block[][] block = new Block[128][72];
     public static StartWeapon startWeapon;
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+    private boolean choose;
 
 
     public Game() {
@@ -112,7 +120,7 @@ public class Game extends com.badlogic.gdx.Game {
             System.out.print("Init ui...............");
             init("ui");
             System.out.print("Init saves............");
-            init("saves");
+            //init("saves");
             System.out.println("------------------------------------");
 
             currentState = STATE_IN_GAME;
@@ -135,7 +143,6 @@ public class Game extends com.badlogic.gdx.Game {
 
             stage.draw();
             stage.act(Gdx.graphics.getDeltaTime());
-            ui.logFPS();
             ui.act();
             ui.draw();
             if(flash) {
@@ -152,7 +159,6 @@ public class Game extends com.badlogic.gdx.Game {
             }
 
             if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-                getStage().addActor(new Coin(new Vector2(Hero.getPosition().x,Hero.getPosition().y),getMainWorld(),this));
 
                 debugRenderer.render(background, camera.combined);
             }
@@ -290,6 +296,10 @@ public class Game extends com.badlogic.gdx.Game {
             Coin.loadAtlases();
             ExitPortal exitPortal = new ExitPortal(this,BlockFactory.exitPos);
             exitPortal.addToWorld(stage);
+
+            for (int i = 0; i < BlockFactory.boostsPos.size(); i++) {
+                stage.addActor(new Booster(this, BlockFactory.boostsPos.get(i)));
+            }
 
             enemies.clear();
             for (int i = 0; i < BlockFactory.enemiesPos.size(); i++) {
@@ -490,5 +500,30 @@ public class Game extends com.badlogic.gdx.Game {
 
     public int getCurrentState() {
         return currentState;
+    }
+
+    public void choose(int kind) {
+        if(!choose) {
+            switch (kind) {
+                case Booster.KIND_HEALTH:
+                    currentChoice = new HealthBoosterChoice(ui);
+                    break;
+                case Booster.KIND_DAMAGE:
+                    currentChoice = new DamageBoosterChoice(ui);
+                    break;
+                case Booster.KIND_MONEY:
+                    currentChoice = new MoneyBoosterChoice(ui);
+                    break;
+            }
+            choose = true;
+        }
+    }
+
+    public BoosterChoice getCurrentBoosterChoice() {
+        return currentChoice;
+    }
+
+    public void chooseEnd() {
+        choose = false;
     }
 }

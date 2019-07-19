@@ -157,4 +157,8 @@ public class UI extends Stage {
     public void logFPS() {
         Game.log("FPS: "+Gdx.graphics.getFramesPerSecond());
     }
+
+    public Game getGame() {
+        return game;
+    }
 }

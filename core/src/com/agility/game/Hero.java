@@ -58,7 +58,7 @@ public class Hero extends Actor {
     public int damaged;
     private String currentAnimation = "idle";
     private float stateTime = 0, maxHealth = GameBalanceConstants.DEFAULT_HERO_MAX_HEALTH,health = maxHealth, afterRollingSlowlinessTimer;
-    private int touchings = 0, avaliableJumps = 2, attackOrder, rollingTimer, rollDirection;
+    private int touchings = 0, avaliableJumps = 2, attackOrder, rollingTimer, rollDirection, jumpBlock;
     private boolean onGround = true, isAttacking, hasWeapon, isSwiped, isDied, isRolling;
     private Game game;
     private transient ItemInfo itemInfoInEdge;
@@ -83,6 +83,7 @@ public class Hero extends Actor {
     ArrayList<Enemy> enemies;
     private static final Random random = new Random();
     private static int expDisplay,expTarget;
+    private int clearDamage, clearCriticalStrike;
 
     //private Music runSound;
 
@@ -184,8 +185,8 @@ public class Hero extends Actor {
     }
 
     private void jump() {
-        if(!isDied) {
-            if (wallTouchDirection == 0) {
+        if(!isDied && jumpBlock == 0) {
+            if (wallTouchDirection == 0 || touchings == 1) {
                 if (avaliableJumps > 0 && !isDied) {
                     avaliableJumps -= 1;
                     body.setLinearVelocity(body.getLinearVelocity().x, 0);
@@ -223,7 +224,12 @@ public class Hero extends Actor {
 
     private boolean isFacingToEnemy() {
         for (Enemy e : game.getEnemies()) {
-            if(!e.isDied() && Math.hypot(e.getBody().getPosition().x - position.x, e.getBody().getPosition().y - position.y) <= 40) {
+            if(!e.isDied() && Math.hypot(e.getBody().getPosition().x -
+                    position.x, e.getBody().getPosition().y - position.y) <= 30 && wallTouchDirection == 0 && touchings > 0) {
+                return true;
+            }
+            else if(!e.isDied() && Math.hypot(e.getBody().getPosition().x -
+                    position.x, e.getBody().getPosition().y - position.y) <= 15 && wallTouchDirection == 0) {
                 return true;
             }
         }
@@ -305,8 +311,14 @@ public class Hero extends Actor {
         this.rollDirection = rollDirection;
     }
 
+    private void reduceJumpBlock(){
+        if(jumpBlock>0) jumpBlock--;
+    }
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        Game.log("Wall direction: "+wallTouchDirection);
+
         if(Gdx.input.isKeyPressed(Input.Keys.T)) {
             maxHealth++;
         }
@@ -320,6 +332,7 @@ public class Hero extends Actor {
         checkForAnotherOneAttack();
         checkForDeath();
         checkForRoll();
+        reduceJumpBlock();
         //printState();
         position = body.getPosition();
         stateTime += Gdx.graphics.getDeltaTime();
@@ -575,6 +588,10 @@ public class Hero extends Actor {
 
     }
 
+    public void heal(int amount) {
+        health+=amount;
+    }
+
     private static void drawExpBar() {
         drawExpBar = true;
         expBarOpacity = 0.99f;
@@ -617,7 +634,7 @@ public class Hero extends Actor {
                 onGround = true;
                 wallTouchDirection = 0;
                 avaliableJumps = 2;
-                if (!currentAnimation.equals("run") && !isRolling) {
+                if (!currentAnimation.equals("run") && !isRolling && !stopped) {
                     setAnimation("run");
                     onGroundStep.play();
                 }
@@ -652,6 +669,8 @@ public class Hero extends Actor {
     }
 
     private void setAnimation(String name) {
+        System.out.println("Animation: "+name);
+
         if(!isDied) {
             currentAnimation = name;
             stateTime = 0;
@@ -696,9 +715,11 @@ public class Hero extends Actor {
     }
 
     public void hitEnemy(Enemy enemy) {
+        jumpBlock = 15;
+
         float damage = weapon.getParameter1();
-        damage += damage * ((new Random().nextInt(11)-5)/100f);
-        boolean critical = Math.random()<(weapon.getParameter2()/100f);
+        damage += (clearDamage + damage) * ((new Random().nextInt(11)-5)/100f);
+        boolean critical = Math.random()<((weapon.getParameter2()+clearCriticalStrike)/100f);
         if(critical) {
             damage *= 1.5f;  // Critical strike
         }
@@ -719,5 +740,17 @@ public class Hero extends Actor {
 
     public void equipLastItem() {
         equip(inventory.get().get(inventory.get().size()-1));
+    }
+
+    public void increaseMaxHealth(int value) {
+        maxHealth+=value;
+    }
+
+    public void increaseDamage(int value) {
+        clearDamage+=value;
+    }
+
+    public void increaseCriticalStrike(int value) {
+        clearCriticalStrike+=value;
     }
 }

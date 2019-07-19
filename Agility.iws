@@ -115,67 +115,24 @@
       <file leaf-file-name="Game.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Game.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1242">
-              <caret line="127" column="26" selection-start-line="127" selection-start-column="26" selection-end-line="127" selection-end-column="26" />
+            <state relative-caret-position="-18">
+              <caret line="500" column="6" selection-start-line="500" selection-start-column="6" selection-end-line="500" selection-end-column="6" />
               <folding>
-                <element signature="e#4053#4054#0" expanded="true" />
-                <element signature="e#4084#4085#0" expanded="true" />
-                <element signature="e#7287#7288#0" expanded="true" />
-                <element signature="e#7332#7333#0" expanded="true" />
-                <element signature="e#16421#16422#0" expanded="true" />
-                <element signature="e#16450#16451#0" expanded="true" />
-                <element signature="e#16486#16487#0" expanded="true" />
-                <element signature="e#16513#16514#0" expanded="true" />
-                <element signature="e#16556#16557#0" expanded="true" />
-                <element signature="e#16590#16591#0" expanded="true" />
-                <element signature="e#16634#16635#0" expanded="true" />
-                <element signature="e#16664#16665#0" expanded="true" />
-                <element signature="e#16696#16697#0" expanded="true" />
-                <element signature="e#16721#16722#0" expanded="true" />
-                <element signature="e#16756#16757#0" expanded="true" />
-                <element signature="e#16785#16786#0" expanded="true" />
-                <element signature="e#16823#16824#0" expanded="true" />
-                <element signature="e#16851#16852#0" expanded="true" />
-                <element signature="e#17177#17178#0" expanded="true" />
-                <element signature="e#17205#17206#0" expanded="true" />
-                <element signature="e#17246#17247#0" expanded="true" />
-                <element signature="e#17279#17280#0" expanded="true" />
-                <element signature="e#17320#17321#0" expanded="true" />
-                <element signature="e#17353#17354#0" expanded="true" />
-                <element signature="e#17397#17398#0" expanded="true" />
-                <element signature="e#17452#17453#0" expanded="true" />
-                <element signature="e#17575#17576#0" expanded="true" />
-                <element signature="e#17616#17617#0" expanded="true" />
-                <element signature="e#17987#17988#0" expanded="true" />
-                <element signature="e#18022#18023#0" expanded="true" />
+                <element signature="e#2551#2558#0" expanded="true" />
+                <element signature="e#18955#18956#0" expanded="true" />
+                <element signature="e#18977#18978#0" expanded="true" />
+                <element signature="e#19033#19034#0" expanded="true" />
+                <element signature="e#19063#19064#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Map.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Map.java">
+      <file leaf-file-name="Save.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/Save.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="145">
-              <caret line="5" column="26" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BlockFactory.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/BlockFactory.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-319">
-              <caret line="74" column="38" selection-start-line="74" selection-start-column="38" selection-end-line="74" selection-end-column="38" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LevelSelectionMenu.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionMenu.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+            <state relative-caret-position="25">
+              <caret line="62" column="25" lean-forward="true" selection-start-line="62" selection-start-column="25" selection-end-line="62" selection-end-column="25" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -183,25 +140,46 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LevelSelectionItemsHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionItemsHandler.java">
+      <file leaf-file-name="BoosterChoice.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/BoosterChoice.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="725">
-              <caret line="37" column="48" selection-start-line="37" selection-start-column="48" selection-end-line="37" selection-end-column="48" />
+            <state relative-caret-position="493">
+              <caret line="17" column="28" selection-start-line="17" selection-start-column="28" selection-end-line="17" selection-end-column="28" />
               <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#3049#3050#0" expanded="true" />
-                <element signature="e#3077#3078#0" expanded="true" />
+                <element signature="e#237#238#0" expanded="true" />
+                <element signature="e#265#266#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ContactHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/ContactHandler.java">
+      <file leaf-file-name="Booster.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Booster.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-493">
-              <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+            <state relative-caret-position="77">
+              <caret line="41" column="22" selection-start-line="41" selection-start-column="22" selection-end-line="41" selection-end-column="22" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Item.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Item.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1392">
+              <caret line="19" column="29" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
+              <folding>
+                <element signature="e#1790#1791#0" expanded="true" />
+                <element signature="e#1827#1828#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HealthBoosterChoice.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/HealthBoosterChoice.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="116">
+              <caret line="4" column="34" selection-start-line="4" selection-start-column="34" selection-end-line="4" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -209,69 +187,43 @@
       <file leaf-file-name="Hero.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Hero.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1204">
-              <caret line="216" column="32" selection-start-line="216" selection-start-column="32" selection-end-line="216" selection-end-column="32" />
+            <state relative-caret-position="279">
+              <caret line="186" column="25" lean-forward="true" selection-start-line="186" selection-start-column="25" selection-end-line="186" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MoneyBoosterChoice.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/MoneyBoosterChoice.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="29">
+              <caret line="1" selection-start-line="1" selection-end-line="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BoosterChoiceItem.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/BoosterChoiceItem.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-765">
+              <caret line="59" column="22" selection-start-line="59" selection-start-column="22" selection-end-line="59" selection-end-column="22" />
               <folding>
-                <element signature="e#8943#8944#0" expanded="true" />
-                <element signature="e#8977#8978#0" expanded="true" />
-                <element signature="e#13528#13529#0" expanded="true" />
-                <element signature="e#13557#13558#0" expanded="true" />
-                <element signature="e#15875#15876#0" expanded="true" />
-                <element signature="e#15906#15907#0" expanded="true" />
-                <element signature="e#24059#24060#0" expanded="true" />
-                <element signature="e#24086#24087#0" expanded="true" />
-                <element signature="e#24142#24143#0" expanded="true" />
-                <element signature="e#24182#24183#0" expanded="true" />
-                <element signature="e#24502#24503#0" expanded="true" />
-                <element signature="e#24539#24540#0" expanded="true" />
-                <element signature="e#24570#24571#0" expanded="true" />
-                <element signature="e#24599#24600#0" expanded="true" />
-                <element signature="e#24629#24630#0" expanded="true" />
-                <element signature="e#24657#24658#0" expanded="true" />
-                <element signature="e#24689#24690#0" expanded="true" />
-                <element signature="e#24718#24719#0" expanded="true" />
-                <element signature="e#24747#24748#0" expanded="true" />
-                <element signature="e#24780#24781#0" expanded="true" />
-                <element signature="e#25600#25601#0" expanded="true" />
-                <element signature="e#25634#25635#0" expanded="true" />
-                <element signature="e#25683#25684#0" expanded="true" />
-                <element signature="e#25725#25726#0" expanded="true" />
-                <element signature="e#25760#25761#0" expanded="true" />
-                <element signature="e#25828#25829#0" expanded="true" />
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Enemy.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Enemy.java">
+      <file leaf-file-name="UI.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/UI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="278" column="5" selection-start-line="278" selection-start-column="5" selection-end-line="278" selection-end-column="5" />
+            <state relative-caret-position="651">
+              <caret line="160" column="23" selection-start-line="160" selection-start-column="23" selection-end-line="160" selection-end-column="23" />
               <folding>
-                <element signature="e#9967#9968#0" expanded="true" />
-                <element signature="e#9994#9995#0" expanded="true" />
-                <element signature="e#10745#10746#0" expanded="true" />
-                <element signature="e#10772#10773#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LevelSelectionItem.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionItem.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="499">
-              <caret line="36" selection-start-line="36" selection-end-line="36" />
-              <folding>
-                <element signature="e#1230#1231#0" expanded="true" />
-                <element signature="e#1252#1253#0" expanded="true" />
-                <element signature="e#1668#1669#0" expanded="true" />
-                <element signature="e#1728#1729#0" expanded="true" />
-                <element signature="e#2542#2543#0" expanded="true" />
-                <element signature="e#2579#2580#0" expanded="true" />
-                <element signature="e#2620#2621#0" expanded="true" />
-                <element signature="e#2657#2658#0" expanded="true" />
+                <element signature="e#5117#5118#0" expanded="true" />
+                <element signature="e#5184#5185#0" expanded="true" />
+                <element signature="e#5213#5214#0" expanded="true" />
+                <element signature="e#5240#5241#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -3347,7 +3299,6 @@
         <option value="$PROJECT_DIR$/core/src/com/agility/game/Utils/LockedCamera.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/Utils/SimpleDirectionGestureDetector.java" />
         <option value="$PROJECT_DIR$/android/build/generated/source/buildConfig/debug/com/agility/game/BuildConfig.java" />
-        <option value="$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Booster.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/AnimatedDecoration.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Block.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/Utils/ItemFactory.java" />
@@ -3363,15 +3314,21 @@
         <option value="$PROJECT_DIR$/core/src/com/agility/game/Utils/Save.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/MainMenu.java" />
         <option value="$PROJECT_DIR$/android/src/com/agility/game/AndroidLauncher.java" />
-        <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/UI.java" />
         <option value="$PROJECT_DIR$/desktop/src/com/agility/game/desktop/DesktopLauncher.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/BlockFactory.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Decoration.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/Level.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionItem.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionItemsHandler.java" />
-        <option value="$PROJECT_DIR$/core/src/com/agility/game/Game.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/Enemy.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/UI.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/DamageBoosterChoice.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/HealthBoosterChoice.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/MoneyBoosterChoice.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/BoosterChoiceItem.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/UI/BoosterChoice.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/Game.java" />
+        <option value="$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Booster.java" />
         <option value="$PROJECT_DIR$/core/src/com/agility/game/Hero.java" />
       </list>
     </option>
@@ -3381,10 +3338,9 @@
     <option name="LAST_EDITED_TAB_NAME" />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-174" />
-    <option name="y" value="-16" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
+    <option name="x" value="-7" />
+    <option name="width" value="974" />
+    <option name="height" value="1047" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -3409,17 +3365,6 @@
             </path>
             <path>
               <item name="Agility" type="1abcf292:AndroidViewProjectNode" />
-              <item name="android" type="feadf853:AndroidModuleNode" />
-              <item name="assets" type="edd41e36:AndroidSourceTypeNode" />
-            </path>
-            <path>
-              <item name="Agility" type="1abcf292:AndroidViewProjectNode" />
-              <item name="android" type="feadf853:AndroidModuleNode" />
-              <item name="assets" type="edd41e36:AndroidSourceTypeNode" />
-              <item name="maps" type="cbb59c9e:AndroidPsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Agility" type="1abcf292:AndroidViewProjectNode" />
               <item name="core" type="e9137016:NonAndroidModuleNode" />
             </path>
             <path>
@@ -3432,6 +3377,13 @@
               <item name="core" type="e9137016:NonAndroidModuleNode" />
               <item name="java" type="f7eae187:NonAndroidSourceTypeNode" />
               <item name="game" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Agility" type="1abcf292:AndroidViewProjectNode" />
+              <item name="core" type="e9137016:NonAndroidModuleNode" />
+              <item name="java" type="f7eae187:NonAndroidSourceTypeNode" />
+              <item name="game" type="462c0819:PsiDirectoryNode" />
+              <item name="UI" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Agility" type="1abcf292:AndroidViewProjectNode" />
@@ -3439,6 +3391,13 @@
               <item name="java" type="f7eae187:NonAndroidSourceTypeNode" />
               <item name="game" type="462c0819:PsiDirectoryNode" />
               <item name="Utils" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Agility" type="1abcf292:AndroidViewProjectNode" />
+              <item name="core" type="e9137016:NonAndroidModuleNode" />
+              <item name="java" type="f7eae187:NonAndroidSourceTypeNode" />
+              <item name="game" type="462c0819:PsiDirectoryNode" />
+              <item name="WorldObjects" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Agility" type="1abcf292:AndroidViewProjectNode" />
@@ -3463,8 +3422,8 @@
           <select />
         </subPane>
       </pane>
-      <pane id="ProjectPane" />
       <pane id="PackagesPane" />
+      <pane id="ProjectPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -3673,22 +3632,22 @@
       <window_info id="Image Layers" order="2" />
       <window_info id="Build Variants" order="2" side_tool="true" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.29317698" side_tool="true" visible="true" weight="0.0110741975" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.70682305" visible="true" weight="0.0110741975" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.29584223" side_tool="true" visible="true" weight="0.0" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.052048728" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.70415777" visible="true" weight="0.0" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info anchor="bottom" id="Logcat" order="7" sideWeight="0.49946696" weight="0.32890365" />
       <window_info id="Captures" order="2" weight="0.25" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49883178" visible="true" weight="0.141258" />
-      <window_info anchor="bottom" x="24" y="846" width="1876" height="193" id="Build" order="7" sideWeight="0.49520257" weight="0.04318937" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49883178" visible="true" weight="0.1119403" />
+      <window_info anchor="bottom" x="24" y="846" width="1876" height="193" id="Build" order="7" sideWeight="0.49307036" weight="0.32779622" />
       <window_info anchor="right" id="Gradle" order="3" />
       <window_info id="Structure" order="1" sideWeight="0.50116825" side_tool="true" weight="0.141258" />
       <window_info anchor="right" id="Device File Explorer" order="3" side_tool="true" />
       <window_info anchor="right" id="Theme Preview" order="3" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49946696" weight="0.39977852" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4989339" weight="0.39977852" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Preview" order="4" weight="0.32995737" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -3715,7 +3674,6 @@
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="right" id="Preview" order="8" weight="0.32995737" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" visible="true" weight="0.0" />
       <window_info anchor="right" id="Device File Explorer" order="4" side_tool="true" />
       <window_info anchor="bottom" id="Logcat" order="10" />
       <window_info anchor="bottom" id="Version Control" order="11" show_stripe_button="false" />
@@ -3728,6 +3686,7 @@
       <window_info anchor="right" id="Theme Preview" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Find" order="1" visible="true" weight="0.0" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
     </layout-to-restore>
   </component>
@@ -3749,61 +3708,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/Preferences.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="48" column="23" selection-start-line="48" selection-start-column="23" selection-end-line="48" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/rt.jar!/java/util/HashMap.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="34" selection-start-line="34" selection-end-line="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/GameBalanceConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-          <folding>
-            <element signature="method#GameBalanceConstants#0;class#GameBalanceConstants#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/math/Rectangle.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Inventory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="15" column="27" selection-start-line="15" selection-start-column="27" selection-end-line="15" selection-end-column="27" />
-          <folding>
-            <element signature="e#286#292#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/StartWeapon.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="33" column="33" selection-start-line="33" selection-start-column="33" selection-end-line="33" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/utils/Json.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
-          <caret line="592" selection-start-line="592" selection-end-line="592" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/utils/ByteArray.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1080">
@@ -3832,17 +3736,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Item.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="19" column="29" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
-          <folding>
-            <element signature="e#1790#1791#0" expanded="true" />
-            <element signature="e#1827#1828#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/ItemFactory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="580">
@@ -3854,23 +3747,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-108">
           <caret line="174" column="23" selection-start-line="174" selection-start-column="23" selection-end-line="174" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/scenes/scene2d/Actor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="208" column="17" selection-start-line="208" selection-start-column="17" selection-end-line="208" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/ItemInfo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="47" column="11" selection-start-line="47" selection-start-column="11" selection-end-line="47" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -3896,16 +3772,6 @@
           <folding>
             <element signature="e#1130#1131#0" expanded="true" />
             <element signature="e#1160#1161#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/Save.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1624">
-          <caret line="73" column="8" selection-start-line="73" selection-start-column="8" selection-end-line="73" selection-end-column="71" />
-          <folding>
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3969,17 +3835,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/UI.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3973">
-          <caret line="157" column="58" selection-start-line="157" selection-start-column="58" selection-end-line="157" selection-end-column="58" />
-          <folding>
-            <element signature="e#5117#5118#0" expanded="true" />
-            <element signature="e#5184#5185#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/ApplicationListener.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="725">
@@ -3998,10 +3853,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="319">
           <caret line="25" column="44" selection-start-line="25" selection-start-column="44" selection-end-line="25" selection-end-column="44" />
-          <folding>
-            <element signature="e#1453#1454#0" expanded="true" />
-            <element signature="e#1522#1523#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -4055,57 +3906,52 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionItem.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="499">
+        <state relative-caret-position="725">
           <caret line="36" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionItemsHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="783">
+          <caret line="37" column="48" selection-start-line="37" selection-start-column="48" selection-end-line="37" selection-end-column="48" />
           <folding>
-            <element signature="e#1230#1231#0" expanded="true" />
-            <element signature="e#1252#1253#0" expanded="true" />
-            <element signature="e#1668#1669#0" expanded="true" />
-            <element signature="e#1728#1729#0" expanded="true" />
-            <element signature="e#2542#2543#0" expanded="true" />
-            <element signature="e#2579#2580#0" expanded="true" />
-            <element signature="e#2620#2621#0" expanded="true" />
-            <element signature="e#2657#2658#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Game.java">
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/ContactHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1242">
-          <caret line="127" column="26" selection-start-line="127" selection-start-column="26" selection-end-line="127" selection-end-column="26" />
+        <state relative-caret-position="116">
+          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/math/Vector2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="283">
+          <caret line="33" column="18" selection-start-line="33" selection-start-column="18" selection-end-line="33" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Enemy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7482">
+          <caret line="278" column="5" selection-start-line="278" selection-start-column="5" selection-end-line="278" selection-end-column="5" />
           <folding>
-            <element signature="e#4053#4054#0" expanded="true" />
-            <element signature="e#4084#4085#0" expanded="true" />
-            <element signature="e#7287#7288#0" expanded="true" />
-            <element signature="e#7332#7333#0" expanded="true" />
-            <element signature="e#16421#16422#0" expanded="true" />
-            <element signature="e#16450#16451#0" expanded="true" />
-            <element signature="e#16486#16487#0" expanded="true" />
-            <element signature="e#16513#16514#0" expanded="true" />
-            <element signature="e#16556#16557#0" expanded="true" />
-            <element signature="e#16590#16591#0" expanded="true" />
-            <element signature="e#16634#16635#0" expanded="true" />
-            <element signature="e#16664#16665#0" expanded="true" />
-            <element signature="e#16696#16697#0" expanded="true" />
-            <element signature="e#16721#16722#0" expanded="true" />
-            <element signature="e#16756#16757#0" expanded="true" />
-            <element signature="e#16785#16786#0" expanded="true" />
-            <element signature="e#16823#16824#0" expanded="true" />
-            <element signature="e#16851#16852#0" expanded="true" />
-            <element signature="e#17177#17178#0" expanded="true" />
-            <element signature="e#17205#17206#0" expanded="true" />
-            <element signature="e#17246#17247#0" expanded="true" />
-            <element signature="e#17279#17280#0" expanded="true" />
-            <element signature="e#17320#17321#0" expanded="true" />
-            <element signature="e#17353#17354#0" expanded="true" />
-            <element signature="e#17397#17398#0" expanded="true" />
-            <element signature="e#17452#17453#0" expanded="true" />
-            <element signature="e#17575#17576#0" expanded="true" />
-            <element signature="e#17616#17617#0" expanded="true" />
-            <element signature="e#17987#17988#0" expanded="true" />
-            <element signature="e#18022#18023#0" expanded="true" />
+            <element signature="e#9967#9968#0" expanded="true" />
+            <element signature="e#9994#9995#0" expanded="true" />
+            <element signature="e#10745#10746#0" expanded="true" />
+            <element signature="e#10772#10773#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/StartWeapon.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="87">
+          <caret line="36" column="8" selection-start-line="36" selection-start-column="8" selection-end-line="53" selection-end-column="40" />
         </state>
       </provider>
     </entry>
@@ -4118,7 +3964,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/BlockFactory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-319">
+        <state relative-caret-position="29">
           <caret line="74" column="38" selection-start-line="74" selection-start-column="38" selection-end-line="74" selection-end-column="38" />
         </state>
       </provider>
@@ -4133,77 +3979,124 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/LevelSelection/LevelSelectionItemsHandler.java">
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/scenes/scene2d/Actor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="725">
-          <caret line="37" column="48" selection-start-line="37" selection-start-column="48" selection-end-line="37" selection-end-column="48" />
+        <state relative-caret-position="286">
+          <caret line="208" column="17" selection-start-line="208" selection-start-column="17" selection-end-line="208" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/ItemInfo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="98">
+          <caret line="52" column="59" selection-start-line="52" selection-start-column="59" selection-end-line="52" selection-end-column="59" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#3049#3050#0" expanded="true" />
-            <element signature="e#3077#3078#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/ContactHandler.java">
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/DamageBoosterChoice.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-493">
-          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+        <state relative-caret-position="87">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
         </state>
       </provider>
     </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.9/1409aca6a4293a7ca8dbd60281c3211a195dd39a/gdx-1.9.9-sources.jar!/com/badlogic/gdx/math/Vector2.java">
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/MoneyBoosterChoice.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="33" column="18" selection-start-line="33" selection-start-column="18" selection-end-line="33" selection-end-column="18" />
+        <state relative-caret-position="29">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Enemy.java">
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Item.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="278" column="5" selection-start-line="278" selection-start-column="5" selection-end-line="278" selection-end-column="5" />
+        <state relative-caret-position="-1392">
+          <caret line="19" column="29" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
           <folding>
-            <element signature="e#9967#9968#0" expanded="true" />
-            <element signature="e#9994#9995#0" expanded="true" />
-            <element signature="e#10745#10746#0" expanded="true" />
-            <element signature="e#10772#10773#0" expanded="true" />
+            <element signature="e#1790#1791#0" expanded="true" />
+            <element signature="e#1827#1828#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/BoosterChoiceItem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-765">
+          <caret line="59" column="22" selection-start-line="59" selection-start-column="22" selection-end-line="59" selection-end-column="22" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/UI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="651">
+          <caret line="160" column="23" selection-start-line="160" selection-start-column="23" selection-end-line="160" selection-end-column="23" />
+          <folding>
+            <element signature="e#5117#5118#0" expanded="true" />
+            <element signature="e#5184#5185#0" expanded="true" />
+            <element signature="e#5213#5214#0" expanded="true" />
+            <element signature="e#5240#5241#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Game.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-18">
+          <caret line="500" column="6" selection-start-line="500" selection-start-column="6" selection-end-line="500" selection-end-column="6" />
+          <folding>
+            <element signature="e#2551#2558#0" expanded="true" />
+            <element signature="e#18955#18956#0" expanded="true" />
+            <element signature="e#18977#18978#0" expanded="true" />
+            <element signature="e#19033#19034#0" expanded="true" />
+            <element signature="e#19063#19064#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Utils/Save.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="25">
+          <caret line="62" column="25" lean-forward="true" selection-start-line="62" selection-start-column="25" selection-end-line="62" selection-end-column="25" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/HealthBoosterChoice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116">
+          <caret line="4" column="34" selection-start-line="4" selection-start-column="34" selection-end-line="4" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/UI/BoosterChoice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="17" column="28" selection-start-line="17" selection-start-column="28" selection-end-line="17" selection-end-column="28" />
+          <folding>
+            <element signature="e#237#238#0" expanded="true" />
+            <element signature="e#265#266#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/WorldObjects/Booster.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="77">
+          <caret line="41" column="22" selection-start-line="41" selection-start-column="22" selection-end-line="41" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/agility/game/Hero.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1204">
-          <caret line="216" column="32" selection-start-line="216" selection-start-column="32" selection-end-line="216" selection-end-column="32" />
-          <folding>
-            <element signature="e#8943#8944#0" expanded="true" />
-            <element signature="e#8977#8978#0" expanded="true" />
-            <element signature="e#13528#13529#0" expanded="true" />
-            <element signature="e#13557#13558#0" expanded="true" />
-            <element signature="e#15875#15876#0" expanded="true" />
-            <element signature="e#15906#15907#0" expanded="true" />
-            <element signature="e#24059#24060#0" expanded="true" />
-            <element signature="e#24086#24087#0" expanded="true" />
-            <element signature="e#24142#24143#0" expanded="true" />
-            <element signature="e#24182#24183#0" expanded="true" />
-            <element signature="e#24502#24503#0" expanded="true" />
-            <element signature="e#24539#24540#0" expanded="true" />
-            <element signature="e#24570#24571#0" expanded="true" />
-            <element signature="e#24599#24600#0" expanded="true" />
-            <element signature="e#24629#24630#0" expanded="true" />
-            <element signature="e#24657#24658#0" expanded="true" />
-            <element signature="e#24689#24690#0" expanded="true" />
-            <element signature="e#24718#24719#0" expanded="true" />
-            <element signature="e#24747#24748#0" expanded="true" />
-            <element signature="e#24780#24781#0" expanded="true" />
-            <element signature="e#25600#25601#0" expanded="true" />
-            <element signature="e#25634#25635#0" expanded="true" />
-            <element signature="e#25683#25684#0" expanded="true" />
-            <element signature="e#25725#25726#0" expanded="true" />
-            <element signature="e#25760#25761#0" expanded="true" />
-            <element signature="e#25828#25829#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="279">
+          <caret line="186" column="25" lean-forward="true" selection-start-line="186" selection-start-column="25" selection-end-line="186" selection-end-column="25" />
         </state>
       </provider>
     </entry>
