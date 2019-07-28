@@ -38,7 +38,7 @@ public class BlockFactory {
     public static Vector2 startWeaponPos;
     public static ArrayList<Vector2> enemiesPos = new ArrayList<Vector2>();
     public static ArrayList<Vector2> boostsPos = new ArrayList<Vector2>();
-    public static Vector2 portalPos;
+    public static ArrayList<Vector2> gatesPos = new ArrayList<Vector2>();
     public static Vector2 exitPos;
 
     public static BlockFactory getInstance() {
@@ -53,7 +53,7 @@ public class BlockFactory {
         final int[] ml = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
                 34, 35, 36, 38, 40, 41, 43, 44, 45, 46, 47, 48, 49,  51, 52,
                 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 74, 75,
-                76, 77, 78, 79, 80, 82,83,92,93,95,98,99,100,107,108,109};
+                76, 77, 78, 79, 80, 82,83,92,93,95,98,99,100,107,108,109,208,209,210,224,225,226,240,241,242};
         for (int i = 0; i < ml.length; i++) {
             midLayerIds.add(ml[i]);
         }
@@ -111,7 +111,7 @@ public class BlockFactory {
                     exitPos = position;
                     break;
                 case (186):
-                    portalPos = position;
+                    gatesPos.add(position);
                     break;
 
                 // Decorations
@@ -166,7 +166,7 @@ public class BlockFactory {
     public static void refreshVariables() {
         heroStartPos = null;
         startWeaponPos = null;
-        portalPos = null;
+        gatesPos.clear();
         exitPos = null;
         enemiesPos.clear();
         boostsPos.clear();

@@ -67,7 +67,10 @@ public class Save {
 
         Json json = new Json();
         prefs.putString("weapon",json.toJson(array));
+
         prefs.flush();
+
+        System.out.println("[Save]  Hero max health: "+heroMaxHealth);
     }
 
     public void load() {
@@ -78,6 +81,12 @@ public class Save {
         passedLevels = prefs.getInteger("passedLevels",  0);
         heroLevel = prefs.getInteger("heroLevel", 1);
         heroMaxHealth = prefs.getInteger("heroMaxHealth", GameBalanceConstants.DEFAULT_HERO_MAX_HEALTH);
+        if(heroMaxHealth < GameBalanceConstants.DEFAULT_HERO_MAX_HEALTH) {
+            System.out.println("WARNING! Recursive call: hero max health < default");
+            clear();
+            load();
+        }
+        System.out.println("[Load]  Hero max health: "+heroMaxHealth);
         try {
             equippedWeapon = (Item) convertFromBytes(new Json().fromJson(ByteArray.class, prefs.getString("weapon")).items);
         }
@@ -86,5 +95,12 @@ public class Save {
             prefs.clear();
         }
 
+    }
+
+    public void clear() {
+        Preferences prefs = Gdx.app.getPreferences("game preferences");
+        prefs.clear();
+        prefs.flush();
+        System.out.println("WARNING: Automatic save clear");
     }
 }

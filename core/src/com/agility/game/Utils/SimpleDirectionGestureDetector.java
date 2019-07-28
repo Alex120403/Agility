@@ -1,6 +1,7 @@
 package com.agility.game.Utils;
 
 import com.agility.game.Game;
+import com.agility.game.UI.UI;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.input.GestureDetector;
@@ -50,15 +51,21 @@ public class SimpleDirectionGestureDetector extends GestureDetector implements I
 
         }
         touchOnUI = false;
-        Game.removeFinger(x,Gdx.graphics.getHeight()-y);
+        Game.removeFinger(x, Gdx.graphics.getHeight()-y);
         return super.touchUp(x, y, pointer, button);
+    }
+
+    @Override
+    public boolean touchDragged(int x, int y, int pointer) {
+        Game.getUi().addFlingPiece(x, Gdx.graphics.getHeight() - y);
+        return super.touchDragged(x, y, pointer);
     }
 
     public SimpleDirectionGestureDetector(DirectionListener directionListener, Game game) {
         super(new DirectionGestureListener(directionListener));
     }
 
-    public static class DirectionGestureListener extends GestureAdapter{
+    public static class DirectionGestureListener extends GestureAdapter {
         public static DirectionListener directionListener;
 
         public DirectionGestureListener(DirectionListener directionListener){

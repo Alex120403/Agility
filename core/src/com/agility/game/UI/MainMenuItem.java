@@ -22,7 +22,7 @@ public class MainMenuItem extends Actor {
         this.texture = texture;
         setBounds(100,y,texture.getWidth(),texture.getHeight());
         this.y = y;
-        scale = 1080f/Gdx.graphics.getHeight()/2.5f;
+        scale = 720f/Gdx.graphics.getHeight();
     }
 
     @Override

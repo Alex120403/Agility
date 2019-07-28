@@ -46,12 +46,12 @@ public class Hero extends Actor {
 
     public static Sprite blood;
     private Sprite currentFrame;
-    private static Sprite expBar, expBarBackground;
+    private static Sprite manaBar, manaBarBackground;
 
     private Body body;
     public Body swordSwipe;
     private final World world;
-    private static double level = 1;
+    private static double mana = 0;
     private static Vector2 position,velocity;
     private int direction = 1, wallTouchDirection;
 
@@ -68,22 +68,23 @@ public class Hero extends Actor {
 
     // Exp bar
 
-    private static BitmapFont expText;
-    private static float expBarOpacity;
+    private static BitmapFont manaText;
+    private static float manaBarOpacity;
     private static boolean drawExpBar;
 
 
     private static final HashMap<String,AnimationWithOffset> animations = new HashMap<String, AnimationWithOffset>();
     private boolean anotherOneAttack;
-    private boolean stopped;
+    private boolean stopped, casting;
     private Item weapon, armor;
     private Sound[] swipes = new Sound[6];
     private Sound[] jumps = new Sound[2];
     private Sound onGroundStep,rollSound;
     ArrayList<Enemy> enemies;
     private static final Random random = new Random();
-    private static int expDisplay,expTarget;
+    private static int manaDisplay,manaTarget;
     private int clearDamage, clearCriticalStrike;
+    private Spell spell;
 
     //private Music runSound;
 
@@ -113,20 +114,24 @@ public class Hero extends Actor {
 
         init("animations");
         init("default equipment");
-        init("exp bar");
+        init("mana bar");
         inventory = new Inventory();
+
 
 
         Gdx.input.setInputProcessor(new SimpleDirectionGestureDetector(new SimpleDirectionGestureDetector.DirectionListener() {
 
             @Override
             public void onUp() {
+                if(mana >= 0.33f && !isCasting()) {
+                    cast();
+                }
 
             }
 
             @Override
             public void onRight() {
-                if(!isDied) {
+                if(!isDied && !isCasting()) {
                     direction = 1;
                     stopped = false;
                 }
@@ -134,7 +139,7 @@ public class Hero extends Actor {
 
             @Override
             public void onLeft() {
-                if(!isDied) {
+                if(!isDied && !isCasting()) {
                     direction = -1;
                     stopped = false;
                 }
@@ -160,7 +165,7 @@ public class Hero extends Actor {
                                 swipes[random.nextInt(3)].play(1f);
                                 setAnimation("attack" + ((++attackOrder % 3) + 1));
                             } else {
-                                setAnimation("cast");
+                                setAnimation("beat");
                             }
                             //direction = 0;
                             isAttacking = true;
@@ -181,13 +186,25 @@ public class Hero extends Actor {
 
             }
         },game));
+    }
 
+    private void cast() {
+        mana -= 0.33f;
+        Vector2 pos = position.cpy();
+        pos.x += 3;
+        if(direction == -1) {
+            pos.x -= 100;
+        }
+        spell = new Spell(true, pos,direction,game);
+        Game.getStage().addActor(spell);
+        stop();
+        setAnimation("cast");
     }
 
     private void jump() {
         if(!isDied && jumpBlock == 0) {
             if (wallTouchDirection == 0 || touchings == 1) {
-                if (avaliableJumps > 0 && !isDied) {
+                if (avaliableJumps > 0) {
                     avaliableJumps -= 1;
                     body.setLinearVelocity(body.getLinearVelocity().x, 0);
                     body.applyLinearImpulse(new Vector2(0, 15000), new Vector2(0, 0), true);
@@ -220,6 +237,7 @@ public class Hero extends Actor {
                 stopped = false;
             }
         }
+
     }
 
     private boolean isFacingToEnemy() {
@@ -238,19 +256,18 @@ public class Hero extends Actor {
         return false;
     }
 
-    public static void frag() {
-        int exp = 0;
-        do {
-            exp = (int)(( 0.11-(random.nextDouble()/(100-level)) ) * 1000)/2;
-        } while (exp <= 30);
-        int oldLevel = (int)level;
-        level += exp/1000f;
-        if ((int)level > oldLevel) {
-            Game.log("Level up! Level: " + (int)level);
+    public void frag() {
+        if(!isCasting()) {
+            int addMana = 0;
+            do {
+                addMana = (int) ((0.11 - (random.nextDouble() / (100))) * 1000);
+            } while (addMana <= 30);
+            mana += addMana / 1000f;
+            if (mana > 1) {
+                mana = 1;
+            }
+            drawExpBar(addMana);
         }
-        expDisplay = 0;
-        expTarget = exp;
-        drawExpBar();
     }
 
     public void stop() {
@@ -289,12 +306,7 @@ public class Hero extends Actor {
     }
 
     public void roll(int rollDirection) {
-        if(rollDirection == 1) {
-            setAnimation("roll");
-        }
-        else {
-            setAnimation("back-roll");
-        }
+        setAnimation("roll");
         enemies = new ArrayList<Enemy>();
         for (int i = 0; i < game.getStage().getActors().size; i++) {
             Actor a = game.getStage().getActors().get(i);
@@ -316,9 +328,12 @@ public class Hero extends Actor {
     }
 
     @Override
-    public void draw(Batch batch, float parentAlpha) {
-        Game.log("Wall direction: "+wallTouchDirection);
+    public void act(float delta) {
 
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
         if(Gdx.input.isKeyPressed(Input.Keys.T)) {
             maxHealth++;
         }
@@ -333,7 +348,11 @@ public class Hero extends Actor {
         checkForDeath();
         checkForRoll();
         reduceJumpBlock();
+        if(wallTouchDirection != 0 && touchings == 0) {
+            wallTouchDirection = 0;
+        }
         //printState();
+
         position = body.getPosition();
         stateTime += Gdx.graphics.getDeltaTime();
         currentFrame = animations.get(currentAnimation).animation.getKeyFrame(stateTime, !isAttacking && !isDied);
@@ -351,40 +370,51 @@ public class Hero extends Actor {
             damaged--;
         }
 
-        if(!stopped && !isRolling && !isDied) {
+        if(!stopped && !isRolling && !isDied && !isCasting()) {
             stabilizeSpeed();
         }
         if(drawExpBar) {
 
-            expBar.setPosition(currentFrame.getX()+6.5f + 1.5f*direction ,currentFrame.getY() + 18);
-            expBarBackground.setPosition(expBar.getX(),expBar.getY());
-            expBarBackground.setSize(expBarBackground.getWidth(),0.5f);
+            manaBar.setPosition(currentFrame.getX()+6.5f + 1.5f*direction ,currentFrame.getY() + 18);
+            manaBarBackground.setPosition(manaBar.getX(),manaBar.getY());
+            manaBarBackground.setSize(manaBarBackground.getWidth(),0.5f);
 
-            expBarBackground.draw(batch,expBarOpacity);
-            expBar.setSize(expBarBackground.getWidth() * (float)((level - (int)level)),expBarBackground.getHeight());
-            expBar.draw(batch,expBarOpacity);
-            expBarOpacity-=(1-expBarOpacity)/25;
-            if(expBarOpacity <= 0.01f) {
-                expBarOpacity = 0.99f;
+            manaBarBackground.draw(batch,manaBarOpacity);
+            manaBar.setSize(manaBarBackground.getWidth() * (float)(mana),manaBarBackground.getHeight());
+            manaBar.draw(batch,manaBarOpacity);
+            manaBarOpacity-=(1-manaBarOpacity)/25;
+            if(manaBarOpacity <= 0.01f) {
+                manaBarOpacity = 0.99f;
                 drawExpBar = false;
             }
-            if(expTarget > expDisplay) {
-                expDisplay += (expTarget-expDisplay)/10;
-                UI.drawTextMessage = "Exp +" + expDisplay;
+            if(manaTarget > manaDisplay) {
+                manaDisplay += (manaTarget-manaDisplay)/10;
             }
 
             float cx = game.getStage().getCamera().position.x - game.getStage().getCamera().viewportWidth/2;
             float cy = game.getStage().getCamera().position.y - game.getStage().getCamera().viewportHeight/2;
-            float expDrawTextX = (expBar.getX() - cx) * 7.5f;
-            float expDrawTextY = (expBar.getY() + 4 - cy) * 7.5f;
+            float manaDrawTextX = (manaBar.getX() - cx - 2f) * 7.5f;
+            float manaDrawTextY = (manaBar.getY() + 4 - cy) * 7.5f;
             if(!Game.getUi().drawText) {
-                Game.getUi().drawText("Exp +" + expDisplay, expDrawTextX, expDrawTextY);
+                if(isManaFull()) {
+                    Game.getUi().drawText("Ultimate ready", manaDrawTextX, manaDrawTextY);
+                }
+                //Game.getUi().drawText("Mana " + (1f/manaDisplay)*100+"%", manaDrawTextX, manaDrawTextY);
+
             }
             else {
-                Game.getUi().drawTextX = expDrawTextX;
-                Game.getUi().drawTextY = expDrawTextY;
+                Game.getUi().drawTextX = manaDrawTextX;
+                Game.getUi().drawTextY = manaDrawTextY;
             }
         }
+    }
+
+    public boolean isCasting() {
+        return spell != null;
+    }
+
+    private boolean isManaFull() {
+        return mana >= 1;
     }
 
     private void checkForRoll() {
@@ -400,6 +430,17 @@ public class Hero extends Actor {
                 e.getBody().setActive(true);
             }
             rollDirection = 0;
+        }
+
+        if(isRolling && wallTouchDirection != 0) {
+            afterRollingSlowlinessTimer = 10;
+            stabilizeSpeed();
+            isRolling = false;
+            for (Enemy e:enemies) {
+                e.getBody().setActive(true);
+            }
+            rollDirection = 0;
+            setAnimation("idle");
         }
     }
 
@@ -477,17 +518,14 @@ public class Hero extends Actor {
                 setAnimation("attack" + ((++attackOrder % 3) + 1));
             }
             else {
-                setAnimation("cast");
+                setAnimation("beat");
             }
             body.setLinearVelocity(0, body.getLinearVelocity().y);
         }
     }
 
 
-    @Override
-    public void act(float delta) {
 
-    }
 
     public static Vector2 getPosition() {
         return position;
@@ -543,7 +581,8 @@ public class Hero extends Actor {
             animations.put("getsword",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/swrd-drw",4).content),2,0, -8));
             animations.put("removesword",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/swrd-shte",4).content),2,0, -8));
             animations.put("idle-sword",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/idle-2",4).content),2,0, -8));
-            animations.put("cast",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("hero/cast",4).content),2,0, -8));
+            animations.put("cast",new AnimationWithOffset(new Animation<Sprite>(0.5f,new SpritePack("hero/cast",4).content),2,0, -8));
+            animations.put("beat",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("hero/cast",4).content),2,0, -8));
             animations.put("fall",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/fall",2).content),2,0, -8));
             animations.put("wall-slide",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/wall-slide",2).content),0,0, -8));
             animations.put("hurt",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/hurt",3).content),0,0, -8));
@@ -568,34 +607,38 @@ public class Hero extends Actor {
 
         }
 
-        else if(request.equals("exp bar")) {
-            Pixmap expPixmap = new Pixmap(12,1,Pixmap.Format.RGBA8888);
-            expPixmap.setColor(1,176f/255f,46f/255f,1);
-            expPixmap.fill();
-            expBar = new Sprite(new Texture(expPixmap));
+        else if(request.equals("mana bar")) {
+            Pixmap manaPixmap = new Pixmap(12,1,Pixmap.Format.RGBA8888);
+            manaPixmap.setColor(0.27f, 0.68f, 1,1);
+            manaPixmap.fill();
+            manaBar = new Sprite(new Texture(manaPixmap));
 
-            Pixmap expPixmapBackground = new Pixmap(12,1,Pixmap.Format.RGBA8888);
-            expPixmapBackground.setColor(0,0,0,1);
-            expPixmapBackground.fill();
-            expBarBackground = new Sprite(new Texture(expPixmapBackground));
+            Pixmap manaPixmapBackground = new Pixmap(12,1,Pixmap.Format.RGBA8888);
+            manaPixmapBackground.setColor(0,0,0,1);
+            manaPixmapBackground.fill();
+            manaBarBackground = new Sprite(new Texture(manaPixmapBackground));
 
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
             parameter.size = 4;
             parameter.color = Color.WHITE;
-            expText = generator.generateFont(parameter);
+            manaText = generator.generateFont(parameter);
         }
 
     }
 
     public void heal(int amount) {
         health+=amount;
+        if(health > maxHealth) {
+            health = maxHealth;
+        }
     }
 
-    private static void drawExpBar() {
+    private static void drawExpBar(int addedMana) {
         drawExpBar = true;
-        expBarOpacity = 0.99f;
+        manaBarOpacity = 0.99f;
         Game.getUi().drawText = false;
+        manaTarget = addedMana;
     }
 
     public void damage(float deal) {
@@ -638,7 +681,7 @@ public class Hero extends Actor {
                     setAnimation("run");
                     onGroundStep.play();
                 }
-            } else if (block.getPosition().y - 4 >= position.y - 12 * 16) {
+            } else if (block.getPosition().y + 4 >= position.y - 25) {
                 if (block.getPosition().x > position.x) {
                     if (body.getLinearVelocity().y < -100) {
                         if (!currentAnimation.equals("wall-slide")) {
@@ -669,9 +712,10 @@ public class Hero extends Actor {
     }
 
     private void setAnimation(String name) {
-        System.out.println("Animation: "+name);
+
 
         if(!isDied) {
+            System.out.println("Animation: "+name);
             currentAnimation = name;
             stateTime = 0;
         }
@@ -695,6 +739,7 @@ public class Hero extends Actor {
     }
 
     public int getMaxHealth() {
+
         return (int)maxHealth;
     }
 
@@ -710,15 +755,15 @@ public class Hero extends Actor {
         return health;
     }
 
-    public int getLevel() {
-        return (int)level;
+    public static double getMana() {
+        return mana;
     }
 
     public void hitEnemy(Enemy enemy) {
         jumpBlock = 15;
 
-        float damage = weapon.getParameter1();
-        damage += (clearDamage + damage) * ((new Random().nextInt(11)-5)/100f);
+        float damage = weapon.getParameter1() + clearDamage;
+        damage += damage * ((new Random().nextInt(11)-5)/100f);
         boolean critical = Math.random()<((weapon.getParameter2()+clearCriticalStrike)/100f);
         if(critical) {
             damage *= 1.5f;  // Critical strike
@@ -730,10 +775,6 @@ public class Hero extends Actor {
         Game.getUi().addActor(new OnHitDamageView((int)damage,new Vector2((enemy.getBody().getPosition().x+3 - cx) * 7.5f,(enemy.getBody().getPosition().y+6 - cy) * 7.5f),critical));
     }
 
-    public static void setLevel(double level) {
-        Hero.level = level;
-    }
-
     public void setMaxHealth(float maxHealth) {
         this.maxHealth = maxHealth;
     }
@@ -743,7 +784,11 @@ public class Hero extends Actor {
     }
 
     public void increaseMaxHealth(int value) {
+        int heal = (int)(200 * (maxHealth/health));
+        System.out.println("NOT Healing: "+heal+" Max health = "+maxHealth +"  Value = "+value);
         maxHealth+=value;
+
+        heal(heal);
     }
 
     public void increaseDamage(int value) {
@@ -752,5 +797,12 @@ public class Hero extends Actor {
 
     public void increaseCriticalStrike(int value) {
         clearCriticalStrike+=value;
+    }
+
+    public void endSpell() {
+        spell = null;
+        stopped = false;
+        setAnimation("run");
+        stabilizeSpeed();
     }
 }

@@ -20,7 +20,7 @@ public class Level {
         this.game = game;
     }
 
-    private void init() {
+    public void init() {
         map = MapParser.getInstance().parse(name + ".amap");
         block = new Block[map.getCells().length][map.getCells()[0].length];
 
@@ -47,9 +47,11 @@ public class Level {
     }
 
     public void start() {
-        game.prepare();
-        init();
-        game.start(this);
+        game.prepare(this);
+    }
+
+    public Level getLevel() {
+        return this;
     }
 
     public void setNumber(int number) {

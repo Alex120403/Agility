@@ -3,6 +3,7 @@ package com.agility.game;
 import com.agility.game.Utils.AnimationWithOffset;
 import com.agility.game.Utils.EnemyDef;
 import com.agility.game.Utils.GameBalanceConstants;
+import com.agility.game.Utils.KillsCounter;
 import com.agility.game.WorldObjects.Coin;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -79,7 +80,7 @@ public class Enemy extends Actor {
                 if(cooldown > 0) {
                     cooldown--;
                 }
-                if(cooldown == 0 && !game.getHero().isDied()) {
+                if(cooldown == 0 && !game.getHero().isDied() && !game.isFreezed() && !Game.getHero().isCasting()) {
                     attack();
                 }
                 else if(cooldown != 0 && !currentAnimation.equals("idle")) {
@@ -134,6 +135,7 @@ public class Enemy extends Actor {
             body.setLinearVelocity(0,0);
             alpha-=0.002f;
             if(!died) {
+                KillsCounter.addKill();
                 dieposition = position;
                 died = true;
                 world.destroyBody(body);
@@ -154,7 +156,7 @@ public class Enemy extends Actor {
                 game.addRandomItem(position);
             }
             if(!fragged) {
-                Hero.frag();
+                Game.getHero().frag();
                 fragged = true;
             }
         }
@@ -259,18 +261,19 @@ public class Enemy extends Actor {
         return body;
     }
 
-    public void damage(float deal) {
+    public void damage(float deal,boolean raise) {
         this.health -= deal;
         damaged = 10;
-        if(health > 0) {
+        if(health > 0 && raise) {
             body.applyLinearImpulse(new Vector2(direction * -5999, 1999), new Vector2(0, 0), true);
         }
-        else {
-
-
-        }
     }
-    private void setAnimation(String name) {
+
+    public void damage(float deal) {
+        damage(deal, true);
+    }
+
+    public void setAnimation(String name) {
         if(died && name.equals("die") || !died) {
             currentAnimation = name;
             stateTime = 0;
@@ -294,4 +297,6 @@ public class Enemy extends Actor {
     public void cooldown() {
         this.cooldown = DEFAULT_COOLDOWN;
     }
+
+
 }

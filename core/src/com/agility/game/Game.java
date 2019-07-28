@@ -2,10 +2,12 @@ package com.agility.game;
 
 import com.agility.game.UI.BoosterChoice;
 import com.agility.game.UI.DamageBoosterChoice;
+import com.agility.game.UI.FlingPiece;
 import com.agility.game.UI.HealthBoosterChoice;
 import com.agility.game.UI.ItemInfo;
 import com.agility.game.UI.LevelSelection.Level;
 import com.agility.game.UI.LevelSelection.LevelSelectionMenu;
+import com.agility.game.UI.LoadingScreen;
 import com.agility.game.UI.MoneyBoosterChoice;
 import com.agility.game.UI.MoneyMonitor;
 import com.agility.game.UI.OnHitDamageView;
@@ -17,6 +19,7 @@ import com.agility.game.WorldObjects.Booster;
 import com.agility.game.WorldObjects.Coin;
 import com.agility.game.WorldObjects.Decoration;
 import com.agility.game.WorldObjects.ExitPortal;
+import com.agility.game.WorldObjects.Gate;
 import com.agility.game.WorldObjects.Item;
 import com.agility.game.WorldObjects.StartWeapon;
 import com.badlogic.gdx.Gdx;
@@ -78,7 +81,9 @@ public class Game extends com.badlogic.gdx.Game {
     Block[][] block = new Block[128][72];
     public static StartWeapon startWeapon;
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-    private boolean choose;
+    private boolean choose, pause;
+    private boolean freeze;
+    private int currentLevelNumber;
 
 
     public Game() {
@@ -117,15 +122,15 @@ public class Game extends com.badlogic.gdx.Game {
             init("enemies");
             System.out.print("Init stage elements...");
             init("stage elements");
-            System.out.print("Init ui...............");
-            init("ui");
             System.out.print("Init saves............");
-            //init("saves");
+            init("saves");
             System.out.println("------------------------------------");
 
             currentState = STATE_IN_GAME;
 
         }
+        unfreeze();
+        KillsCounter.refreshGameKills();
     }
 
     public static void log(String message) {
@@ -158,12 +163,19 @@ public class Game extends com.badlogic.gdx.Game {
                 batch.end();
             }
 
-            if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-
-                debugRenderer.render(background, camera.combined);
+            if(!freeze) {
+                middle.step((1 / 100f), 4, 4);
             }
+
             if (Gdx.input.isKeyPressed(Input.Keys.X)) {
                 debugRenderer.render(middle, camera.combined);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.G)) {
+                stage.draw();
+                stage.act(Gdx.graphics.getDeltaTime());
+                ui.act();
+                ui.draw();
+                middle.step((1 / 100f), 4, 4);
             }
             if (Gdx.input.isKeyPressed(Input.Keys.C)) {
                 debugRenderer.render(foreground, camera.combined);
@@ -171,7 +183,7 @@ public class Game extends com.badlogic.gdx.Game {
             }
 
 
-            middle.step((1 / 100f), 4, 4);
+
         }
         else if(currentState == STATE_IN_MAIN_MENU){
             Gdx.gl.glClearColor(10f/100f,12f/100f,19.7f/100f,1);
@@ -179,6 +191,12 @@ public class Game extends com.badlogic.gdx.Game {
         }
         else if(currentState == STATE_IN_LEVEL_SELECTION){
             levelSelectionMenu.draw();
+        }
+
+        if(freeze) {
+            for(Enemy e:enemies) {
+                e.setAnimation("idle");
+            }
         }
     }
 
@@ -215,7 +233,14 @@ public class Game extends com.badlogic.gdx.Game {
         mainMenu.dispose();
         levelSelectionMenu.dispose();
         Save save = savedProgress();
-        save.save();
+        if(hero != null && hero.isDied()) {
+            save.clear();
+            System.out.println("Prefs clear!");
+        }
+        else {
+            save.save();
+        }
+
     }
 
     private Save savedProgress() {
@@ -265,7 +290,7 @@ public class Game extends com.badlogic.gdx.Game {
             hero.setZIndex(3);
         }
         else if(request.equalsIgnoreCase("camera")) {
-            float abstractHeight = 720/zoom;
+            float abstractHeight = Gdx.graphics.getHeight()/zoom;
             double w_div_h = Gdx.graphics.getWidth()/Gdx.graphics.getHeight();
             camera  = new LockedCamera(abstractHeight*(float)w_div_h,abstractHeight,hero);
         }
@@ -284,6 +309,7 @@ public class Game extends com.badlogic.gdx.Game {
 
             flashScreen.setSize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
             OnHitDamageView.init();
+            FlingPiece.init();
         }
 
         else if(request.equalsIgnoreCase("stage elements")) {
@@ -305,6 +331,10 @@ public class Game extends com.badlogic.gdx.Game {
             for (int i = 0; i < BlockFactory.enemiesPos.size(); i++) {
                 enemies.add(new Enemy(patterns[new Random().nextInt(patterns.length)],middle,BlockFactory.enemiesPos.get(i),this));
                 stage.addActor(enemies.get(i));
+            }
+
+            for (int i = 0; i < BlockFactory.gatesPos.size(); i++) {
+                stage.addActor(new Gate(BlockFactory.gatesPos.get(i), getMainWorld(), 0.8f, enemies.size()));
             }
 
 
@@ -405,8 +435,7 @@ public class Game extends com.badlogic.gdx.Game {
             save.load();
             MoneyMonitor.setCoins(save.coins);
             MoneyMonitor.setDiamonds(save.diamonds);
-            Hero.setLevel(save.heroLevel);
-            hero.setMaxHealth(save.heroMaxHealth);
+            hero.increaseMaxHealth(save.heroMaxHealth-GameBalanceConstants.DEFAULT_HERO_MAX_HEALTH);
             if(save.equippedWeapon != null) {
                 hero.equip(save.equippedWeapon, true);
             }
@@ -469,6 +498,7 @@ public class Game extends com.badlogic.gdx.Game {
 
     public void heroInPortal() {
         flash = true;
+        hero.stop();
     }
 
     public World getBackgroundWorld() {
@@ -486,16 +516,43 @@ public class Game extends com.badlogic.gdx.Game {
     public static LevelSelectionMenu getLevelSelectionMenu() {
         return levelSelectionMenu;
     }
+    LoadingScreen screen;
+    Thread thread;
+    public void prepare(final Level level) {
+        currentLevelNumber = level.getNumber();
 
-    public void prepare() {
-        System.out.print("Init box2d............");
-        init("box2d");
-        System.out.print("Init hero.............");
-        init("hero");
-        System.out.print("Init camera...........");
-        init("camera");
-        System.out.print("Init stage............");
-        init("stage");
+        screen = new LoadingScreen();
+        levelSelectionMenu.addActor(screen);
+        Thread loadingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.print("Init box2d............");
+                        init("box2d");
+                        System.out.print("Init hero.............");
+                        init("hero");
+                        System.out.print("Init camera...........");
+                        init("camera");
+                        System.out.print("Init stage............");
+                        init("stage");
+                        System.out.print("Init ui...............");
+                        init("ui");
+
+                        level.init();
+
+                        start(level);
+                    }
+                });
+            }
+        });
+        loadingThread.setPriority(9);
+        loadingThread.start();
+
+
+
+
     }
 
     public int getCurrentState() {
@@ -516,6 +573,7 @@ public class Game extends com.badlogic.gdx.Game {
                     break;
             }
             choose = true;
+            freeze();
         }
     }
 
@@ -525,5 +583,26 @@ public class Game extends com.badlogic.gdx.Game {
 
     public void chooseEnd() {
         choose = false;
+        unfreeze();
+    }
+
+    public void freeze() {
+        freeze = true;
+        hero.stop();
+        for(Enemy e:enemies) {
+            e.setAnimation("idle");
+        }
+    }
+
+    public void unfreeze() {
+        freeze = false;
+    }
+
+    public boolean isFreezed() {
+        return freeze;
+    }
+
+    public int getCurrentLevelNumber() {
+        return currentLevelNumber;
     }
 }

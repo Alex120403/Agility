@@ -23,6 +23,8 @@ public class Booster extends Actor {
     public static final int KIND_MONEY  = 2;
 
     private int kind;
+    private final float deltaY = 4;
+    private float statePosition;
     private Sprite sprite;
     private Game game;
 
@@ -46,9 +48,10 @@ public class Booster extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        sprite.setPosition(getX() - 4, getY() - 4);
-
+        sprite.setPosition(getX() - 4, getY() + (float)(Math.sin(statePosition)*deltaY));
         sprite.draw(batch);
+
+        statePosition+=0.03f;
         checkForPlayerTouch();
     }
 

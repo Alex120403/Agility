@@ -58,10 +58,14 @@ public class UI extends Stage {
         this.game = game;
     }
 
+    public void addFlingPiece(int x, int y) {
+        addActor(new FlingPiece(x,y));
+    }
+
     @Override
     public void draw() {
         super.draw();
-        if(swipeOpacityDecreaseUnlocked && swipeOpacity > 0) {
+        /*if(swipeOpacityDecreaseUnlocked && swipeOpacity > 0) {
             drawDebugLine(new Vector2(point.getX()+point.getWidth()/2,
                     point.getY()+point.getWidth()/2), new Vector2(end.getX()+point.getWidth()/2,
                     end.getY()+point.getWidth()/2), getCamera().combined,swipeOpacity);
@@ -74,7 +78,7 @@ public class UI extends Stage {
             swipeOpacity = 0;
             point.setAlpha(swipeOpacity);
             end.setAlpha(swipeOpacity);
-        }
+        }*/
         getBatch().begin();
         font.setColor(0.8f, 0.8f, 0.8f, opacity);
         font.draw(getBatch(), message, 40, 50);
@@ -90,8 +94,8 @@ public class UI extends Stage {
         if(game.getHero().damaged > 0) {
             Hero.blood.draw(Game.getUi().getBatch(),0.7f*(game.getHero().damaged/20f));
         }
-        point.draw(getBatch());
-        end.draw(getBatch());
+        //point.draw(getBatch());
+        //end.draw(getBatch());
         getBatch().end();
         opacity-=(1-opacity)/25;
         //log("FPS: "+Gdx.graphics.getFramesPerSecond());
