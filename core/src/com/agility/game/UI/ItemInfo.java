@@ -76,7 +76,7 @@ public class ItemInfo extends Actor implements Disposable, Serializable {
     public static void init() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 28;
+        parameter.size = 36;
         parameter.color = Color.WHITE;
         nameFont = generator.generateFont(parameter);
         generator.dispose();

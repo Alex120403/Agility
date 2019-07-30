@@ -15,4 +15,13 @@ public class SpritePack {
             //content[i].setSize(50/2,37/2);
         }
     }
+
+    public SpritePack(String spriteName, int count, float scale) {
+        content = new Sprite[count];
+        for (int i = 0; i < count; i++) {
+            Texture buffer = new Texture(Gdx.files.internal(spriteName+"-0"+i+".png"));
+            content[i] = new Sprite(buffer);
+            content[i].setSize(content[i].getWidth()*scale, content[i].getHeight()*scale);
+        }
+    }
 }

@@ -35,7 +35,7 @@ public class MoneyMonitor extends Actor {
         diamond.setSize(32,32);
         diamond.setPosition(39,80);
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("stacked pixel.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 36;
         parameter.color = Color.WHITE;

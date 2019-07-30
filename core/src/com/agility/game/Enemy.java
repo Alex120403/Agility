@@ -4,6 +4,7 @@ import com.agility.game.Utils.AnimationWithOffset;
 import com.agility.game.Utils.EnemyDef;
 import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.Utils.KillsCounter;
+import com.agility.game.WorldObjects.Bullet;
 import com.agility.game.WorldObjects.Coin;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 
 public class Enemy extends Actor {
     private Body body;
-    private final World world;
+    protected final World world;
     private Vector2 position, dieposition;
     private int direction = 1, damaged;
     private Sprite currentFrame;
@@ -32,13 +33,15 @@ public class Enemy extends Actor {
     private float stateTime = 0, maxHealth,health, cooldown, alpha = 1 , damage, visibilityX, visibilityY, attackRange, runVelocity;
     private final HashMap<String,AnimationWithOffset> animations;
     private final Texture hpbg,hpfg;
-    private boolean died = false,alreadyDealedDamage, isAttacking, hasDrop = Math.random()<=GameBalanceConstants.EQUIPMENT_DROP_CHANCE, hasDiamonds = true;
+    protected boolean died = false,alreadyDealedDamage, isAttacking, hasDrop = Math.random()<=GameBalanceConstants.EQUIPMENT_DROP_CHANCE, hasDiamonds = true;
     private Game game;
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
     private boolean fragged;
+    private boolean ranged;
 
 
     public Enemy(EnemyDef def, World world, Vector2 position, Game game) {
+        System.out.println(def);
         maxHealth = def.maxHealth;
         health = maxHealth;
         DEFAULT_COOLDOWN = def.cooldown;
@@ -50,6 +53,7 @@ public class Enemy extends Actor {
         visibilityY = def.visibilityY;
         attackRange = def.attackRange;
         runVelocity = def.runVelocity;
+        ranged = def.ranged;
         this.world = world;
         this.position = position;
         this.game = game;
@@ -191,15 +195,50 @@ public class Enemy extends Actor {
         else if(isAttacking) {
             body.setLinearVelocity(0,body.getLinearVelocity().y);
             if(stateTime>=stateTimeSlash && stateTime <= stateTimeSlash+0.1f && !alreadyDealedDamage && !died) {
-                if(Math.abs(Hero.getPosition().y - position.y) <= visibilityY) {
-                    if(direction == 1 && Hero.getPosition().x - position.x <= attackRange && Hero.getPosition().x - position.x > 0) {
-                        game.getHero().damage(damage);
-                    }
-                    else if(direction == -1 && position.x - Hero.getPosition().x <= attackRange && position.x - Hero.getPosition().x > 0) {
-                        game.getHero().damage(damage);
-                    }
-                    alreadyDealedDamage = true;
+                if(!ranged) {
+                    if (Math.abs(Hero.getPosition().y - position.y) <= visibilityY) {
+                        if (direction == 1 && Hero.getPosition().x - position.x <= attackRange && Hero.getPosition().x - position.x > 0) {
+                            game.getHero().damage(damage);
+                        } else if (direction == -1 && position.x - Hero.getPosition().x <= attackRange && position.x - Hero.getPosition().x > 0) {
+                            game.getHero().damage(damage);
+                        }
+                        alreadyDealedDamage = true;
 
+                    }
+                }
+                else {
+                    // Create bullet
+                    Bullet bullet;
+
+                    // Body
+                    Body body;
+                    {
+                        BodyDef def = new BodyDef();
+                        def.gravityScale = 0;
+                        def.type = BodyDef.BodyType.DynamicBody;
+                        def.position.x = getBody().getPosition().x + 2 + 3*direction;
+                        def.position.y = getBody().getPosition().y + 8.5f;
+                        def.bullet = true;
+
+                        body = world.createBody(def);
+                        body.setFixedRotation(true);
+                        FixtureDef fixtureDef = new FixtureDef();
+                        PolygonShape shape = new PolygonShape();
+                        shape.setAsBox(3, 1);
+                        fixtureDef.shape = shape;
+                        fixtureDef.density = 10f;
+                        fixtureDef.friction = 1f;
+
+                        body.createFixture(fixtureDef);
+                        body.setUserData("wizardsBullet");
+                    }
+                    Vector2 velocity = new Vector2(getDirection() * 60, 0);
+
+                    bullet = new Bullet(body, "enemies/wizard/wizardsBullet.png", velocity, getDirection());
+                    game.registerBullet(bullet);
+                    Game.getStage().addActor(bullet);
+
+                    alreadyDealedDamage = true;
                 }
             }
         }
@@ -209,16 +248,17 @@ public class Enemy extends Actor {
             damaged--;
         }
         if(health>0 && health != maxHealth) {
-            batch.draw(hpbg, position.x - 1, position.y + 15, hpbg.getWidth() / 3, hpbg.getHeight() / 10f);
-            batch.draw(hpfg, position.x - 1, position.y + 15, hpfg.getWidth() / 3 * (health / maxHealth), hpfg.getHeight() / 10f);
+            batch.draw(hpbg, position.x - 1, position.y + 18, hpbg.getWidth() / 3, hpbg.getHeight() / 10f);
+            batch.draw(hpfg, position.x - 1, position.y + 18, hpfg.getWidth() / 3 * (health / maxHealth), hpfg.getHeight() / 10f);
         }
 
     }
 
-    private void attack() {
+    protected void attack() {
         isAttacking = true;
         setAnimation("attack");
         cooldown();
+
     }
     private void init(String request) {
         if(request.equals("body")) {
@@ -227,7 +267,6 @@ public class Enemy extends Actor {
             def.type = BodyDef.BodyType.DynamicBody;
             def.position.x = position.x;
             def.position.y = position.y;
-            def.bullet = true;
 
             body = world.createBody(def);
             body.setFixedRotation(true);
@@ -298,5 +337,7 @@ public class Enemy extends Actor {
         this.cooldown = DEFAULT_COOLDOWN;
     }
 
-
+    public int getDirection() {
+        return direction;
+    }
 }

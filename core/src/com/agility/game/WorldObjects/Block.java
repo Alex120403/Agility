@@ -14,7 +14,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class Block extends Actor {
-    private final TextureRegion tile;
+    private final Sprite tile;
     private final Body body;
     public final int layer;
     private final Vector2 position;
@@ -22,21 +22,20 @@ public class Block extends Actor {
 
 
     public Block(TextureRegion tile, Body body, int layer, Vector2 position, int tileId) {
-        this.tile = tile;
+        this.tile = new Sprite(tile);
+        this.tile.setPosition(position.x,position.y);
         this.body = body;
         this.layer = layer;
         this.tileId = tileId;
         this.position = position;
-        setZIndex(1);
+        setZIndex(layer);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-
-            if (tileId != 0 && tileId != 15) {
-                batch.draw(tile, position.x, position.y);
-            }
-
+        if (tileId != 0 && tileId != 15) {
+            tile.draw(batch, parentAlpha);
+        }
     }
 
     public int getLayer() {

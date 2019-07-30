@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-import sun.java2d.opengl.OGLContext;
 
 public class LoadingScreen extends Actor {
     private float stateTime;

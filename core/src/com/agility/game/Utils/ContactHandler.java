@@ -2,6 +2,8 @@ package com.agility.game.Utils;
 
 import com.agility.game.Enemy;
 import com.agility.game.Game;
+import com.agility.game.RangedEnemy;
+import com.agility.game.WorldObjects.Bullet;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -25,6 +27,25 @@ public class ContactHandler implements ContactListener {
     public void beginContact(Contact contact) {
         String userDataA = contact.getFixtureA().getBody().getUserData().toString();
         String userDataB = contact.getFixtureB().getBody().getUserData().toString();
+
+        if((userDataA.equals("wizardsBullet") && userDataB.equals("player") || userDataA.equals("player") && userDataB.equals("wizardsBullet"))){
+            Game.getHero().damage(GameBalanceConstants.WIZARD_SPELL_DAMAGE);
+        }
+
+        if(userDataA.equals("wizardsBullet")){
+            for (Bullet bullet:game.getBullets()) {
+                if(bullet.getBody().equals(contact.getFixtureA().getBody())) {
+                    bullet.destroy();
+                }
+            }
+        }
+        else if(userDataB.equals("wizardsBullet")) {
+            for (Bullet bullet:game.getBullets()) {
+                if(bullet.getBody().equals(contact.getFixtureB().getBody())) {
+                    bullet.destroy();
+                }
+            }
+        }
 
         if(userDataA.equals("player") && userDataB.equals("block") || userDataB.equals("player") && userDataA.equals("block")){
             game.getHero().touchBlock(contact);

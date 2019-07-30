@@ -8,6 +8,7 @@ import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.Utils.LockedCamera;
 import com.agility.game.Utils.SimpleDirectionGestureDetector;
 import com.agility.game.Utils.SpritePack;
+import com.agility.game.WorldObjects.Bullet;
 import com.agility.game.WorldObjects.Item;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -37,10 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import javax.management.ObjectName;
-
-import box2dLight.PointLight;
-import box2dLight.RayHandler;
 
 public class Hero extends Actor {
 
@@ -64,6 +61,8 @@ public class Hero extends Actor {
     private transient ItemInfo itemInfoInEdge;
     private Inventory inventory;
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
+    private FixtureDef fixtureDef;
+    private PolygonShape shape;
 
 
     // Exp bar
@@ -85,6 +84,7 @@ public class Hero extends Actor {
     private static int manaDisplay,manaTarget;
     private int clearDamage, clearCriticalStrike;
     private Spell spell;
+    private boolean grab, grabAbility;
 
     //private Music runSound;
 
@@ -251,6 +251,14 @@ public class Hero extends Actor {
                 return true;
             }
         }
+        for(Bullet e:Game.getBullets()) {
+            Game.log(e.getBody().getPosition()+"  "+position);
+            if(Math.hypot(e.getBody().getPosition().x -
+                    position.x, e.getBody().getPosition().y - position.y) <= 24 && wallTouchDirection == 0 &&
+                    Math.abs(e.getBody().getPosition().y - position.y) < 40) {
+                return true;
+            }
+        }
 
 
         return false;
@@ -307,6 +315,8 @@ public class Hero extends Actor {
 
     public void roll(int rollDirection) {
         setAnimation("roll");
+        PolygonShape ps = (PolygonShape)(body.getFixtureList().get(0).getShape());
+        ps.setAsBox(4,0.01f);
         enemies = new ArrayList<Enemy>();
         for (int i = 0; i < game.getStage().getActors().size; i++) {
             Actor a = game.getStage().getActors().get(i);
@@ -334,6 +344,9 @@ public class Hero extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        if(touchings == 1 && wallTouchDirection != 0 && !onGround && !grab && grabAbility && body.getLinearVelocity().y >= -40) {
+            grab();
+        }
         if(Gdx.input.isKeyPressed(Input.Keys.T)) {
             maxHealth++;
         }
@@ -373,6 +386,10 @@ public class Hero extends Actor {
         if(!stopped && !isRolling && !isDied && !isCasting()) {
             stabilizeSpeed();
         }
+        else if(isDied) {
+            body.setLinearVelocity(0,body.getLinearVelocity().y);
+        }
+        checkForGrab();
         if(drawExpBar) {
 
             manaBar.setPosition(currentFrame.getX()+6.5f + 1.5f*direction ,currentFrame.getY() + 18);
@@ -409,8 +426,50 @@ public class Hero extends Actor {
         }
     }
 
+    private void checkForGrab() {
+        //Game.log("WTD = "+wallTouchDirection+"  Touchings = "+touchings +"  Grab = "+grab +"  On ground = "+onGround +"  Grab ability = "+grabAbility+"  State time = "+stateTime);
+        if(touchings != 1 || !grabAbility) {
+            grab = false;
+        }
+        if(grab) {
+            if(stateTime < 1 || true) {
+                if(!currentAnimation.equals("grab")) {
+                    setAnimation("grab", false);
+                }
+                if(wallTouchDirection == -1) {
+                    body.setLinearVelocity(-200, 40);
+                }
+                else if(wallTouchDirection == 1) {
+                    body.setLinearVelocity(200, 40);
+                }
+                else {
+                    grab = false;
+                }
+            }
+            else {
+                grab = false;
+            }
+        }
+    }
+
+    private void grab() {
+        grab = true;
+        setAnimation("grab");
+    }
     public boolean isCasting() {
         return spell != null;
+    }
+
+    private void restoreBody() {
+        PolygonShape ps = (PolygonShape)(body.getFixtureList().get(0).getShape());
+        Vector2[] points = {
+                new Vector2(0,(float)Math.sqrt(12)*4),
+                new Vector2(0,0.2f),
+                new Vector2(0.2f,0),
+                new Vector2((float)Math.sqrt(3)*4-0.2f,0),
+                new Vector2((float)Math.sqrt(3)*4,0.2f),
+                new Vector2((float)Math.sqrt(3)*4,(float)Math.sqrt(12)*4)};
+        ps.set(points);
     }
 
     private boolean isManaFull() {
@@ -430,6 +489,7 @@ public class Hero extends Actor {
                 e.getBody().setActive(true);
             }
             rollDirection = 0;
+            restoreBody();
         }
 
         if(isRolling && wallTouchDirection != 0) {
@@ -441,6 +501,7 @@ public class Hero extends Actor {
             }
             rollDirection = 0;
             setAnimation("idle");
+            restoreBody();
         }
     }
 
@@ -465,8 +526,8 @@ public class Hero extends Actor {
 
         swordSwipe = world.createBody(def);
         swordSwipe.setFixedRotation(true);
-        FixtureDef fixtureDef = new FixtureDef();
-        PolygonShape shape = new PolygonShape();
+        fixtureDef = new FixtureDef();
+        shape = new PolygonShape();
         shape.setAsBox(6,1);
         fixtureDef.shape = shape;
         fixtureDef.density = 1;
@@ -586,6 +647,7 @@ public class Hero extends Actor {
             animations.put("fall",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/fall",2).content),2,0, -8));
             animations.put("wall-slide",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/wall-slide",2).content),0,0, -8));
             animations.put("hurt",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/hurt",3).content),0,0, -8));
+            animations.put("grab",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/crnr-clmb",5).content),0,-4, -8));
 
 
 
@@ -664,6 +726,7 @@ public class Hero extends Actor {
 
     public void touchBlock(Contact contact) {
         touchings++;
+        grabAbility = false;
 
         Body block = null;
         if(contact.getFixtureA().getBody().getUserData().equals("player") && contact.getFixtureB().getBody().getUserData().equals("block")) {
@@ -671,6 +734,13 @@ public class Hero extends Actor {
         }
         else if(contact.getFixtureB().getBody().getUserData().equals("player") && contact.getFixtureA().getBody().getUserData().equals("block")){
             block = contact.getFixtureA().getBody();
+        }
+        if(block != null) {
+
+            if(block.getPosition().y <= body.getPosition().y+10) {
+                grabAbility = true;
+            }
+            //Game.log("Block y ="+block.getPosition().y+"  Hero y ="+body.getPosition().y);
         }
         if(block != null && !isAttacking) {
             if (block.getPosition().y + 4 <= position.y && block.getPosition().x - position.x < 3 * 16) {
@@ -711,14 +781,17 @@ public class Hero extends Actor {
         }
     }
 
-    private void setAnimation(String name) {
-
-
+    private void setAnimation(String name, boolean refreshStateTime) {
         if(!isDied) {
-            System.out.println("Animation: "+name);
             currentAnimation = name;
-            stateTime = 0;
+            if(refreshStateTime) {
+                stateTime = 0;
+            }
         }
+    }
+
+    private void setAnimation(String name) {
+        setAnimation(name,true);
     }
 
     public Body getBody() {
@@ -804,5 +877,9 @@ public class Hero extends Actor {
         stopped = false;
         setAnimation("run");
         stabilizeSpeed();
+    }
+
+    public boolean isRolling() {
+        return isRolling;
     }
 }

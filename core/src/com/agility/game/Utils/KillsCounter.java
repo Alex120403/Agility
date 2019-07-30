@@ -14,7 +14,7 @@ public class KillsCounter {
         totalKills++;
     }
 
-    public int getKillsInCurrentGame() {
+    public static int getKillsInCurrentGame() {
         return killsInCurrentGame;
     }
 

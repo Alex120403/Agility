@@ -58,7 +58,7 @@ public class BlockFactory {
             midLayerIds.add(ml[i]);
         }
 
-        final int[] fgl = {90,106,42,58,94,11,111,141,156,123,124,125,126,155,156,157,158,159,168,169,170,50,165, 61, 170,91};
+        final int[] fgl = {90,106,42,58,94,11,111,116,141,156,123,124,125,126,155,156,157,158,159,168,169,170,50,165, 61, 170,91, 178, 160,161,162};
         for (int i = 0; i < fgl.length; i++) {
             fgLayerIds.add(fgl[i]);
         }
@@ -76,7 +76,7 @@ public class BlockFactory {
         def.position.y = position.y+4;
         Body body = null;
 
-        int layer;
+        int layer = 1;
         if(midLayerIds.contains(tileId)) {
             body = mid.createBody(def);
             layer = 2;
@@ -146,8 +146,8 @@ public class BlockFactory {
             layer = 1;
             tile = new TextureRegion(atlas, 0, 0, 8, 8);
         }
-        else {
-            layer = 1;
+        else if(fgLayerIds.contains(tileId)){
+            layer = 99999;
         }
 
 

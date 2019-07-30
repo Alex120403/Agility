@@ -21,15 +21,28 @@ public class Level {
     }
 
     public void init() {
-        map = MapParser.getInstance().parse(name + ".amap");
+        map = MapParser.getInstance().parse(name + ".csv");
         block = new Block[map.getCells().length][map.getCells()[0].length];
 
         for (int i = 0; i < block.length; i++) {
             for (int j = 0; j < block[0].length; j++) {
-                block[i][j] = BlockFactory.getInstance().create(map.getCells()[i][j],new Vector2(8*i,8*j),game.getBackgroundWorld(),game.getMainWorld(),game.getForegroundWorld());
+                block[i][j] = BlockFactory.getInstance().create(map.getCells()[i][j], new Vector2(8 * i, 8 * j), game.getBackgroundWorld(), game.getMainWorld(), game.getForegroundWorld());
+                if(block[i][j].layer != 99999) {
+                    block[i][j].setZIndex(block[i][j].layer);
+                    Game.getStage().addActor(block[i][j]);
+                }
+            }
+        }
+    }
 
-                block[i][j].setZIndex(block[i][j].layer);
-                Game.getStage().addActor(block[i][j]);
+    public void initForeground() {
+        for (int i = 0; i < block.length; i++) {
+            for (int j = 0; j < block[0].length; j++) {
+                if(block[i][j].layer == 99999) {
+                    block[i][j].setZIndex(99999+i);
+                    block[i][j].setName("foregroundBlock");
+                    Game.getStage().addActor(block[i][j]);
+                }
             }
         }
     }
