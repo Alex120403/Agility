@@ -32,7 +32,7 @@ public class Item extends Actor implements Serializable {
         super();
         state = info;
         Game.onGroundItems.add(this);
-        this.info = new Sprite(new Texture("itemInfo.png"));
+        this.info = new Sprite(new Texture("itemInfo+.png"));
         if(iconName != null) {
             icon = new Sprite(new Texture("items/"+iconName + ".png"));
         }
@@ -107,7 +107,7 @@ public class Item extends Actor implements Serializable {
                 font.setColor(Color.RED);
                 font.draw(batch, ": " + state.getParameter1(), info.getX() + 4.5f, info.getY() + 12.5f);                font.setColor(Color.WHITE);
             } else {
-                font.setColor(Color.ORANGE);
+                font.setColor(Color.YELLOW);
                 font.draw(batch, ": " + state.getParameter1(), info.getX() + 4.5f, info.getY() + 12.5f);                font.setColor(Color.WHITE);
             }
 
@@ -121,7 +121,7 @@ public class Item extends Actor implements Serializable {
                 font.draw(batch, ": " + (int)state.getParameter2(), info.getX() + 4.5f, info.getY() + 5.5f);
                 font.setColor(Color.WHITE);
             } else {
-                font.setColor(Color.ORANGE);
+                font.setColor(Color.YELLOW);
                 font.draw(batch, ": " + (int)state.getParameter2(), info.getX() + 4.5f, info.getY() + 5.5f);
                 font.setColor(Color.WHITE);
             }

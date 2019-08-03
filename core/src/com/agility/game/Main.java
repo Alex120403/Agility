@@ -14,10 +14,9 @@ public class Main extends ApplicationAdapter {
 	Texture img;
 	OrthographicCamera camera;
 	Game game;
-	
+
 	@Override
 	public void create () {
-
 		batch = new SpriteBatch();
 		camera  = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		camera.position.x = camera.viewportWidth/2;
@@ -36,7 +35,7 @@ public class Main extends ApplicationAdapter {
 		batch.begin();
 		batch.end();
 	}
-	
+
 	@Override
 	public void dispose () {
 		batch.dispose();

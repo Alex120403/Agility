@@ -22,7 +22,7 @@ public class ItemFactory {
             level = game.getCurrentLevelNumber() - 1 + random.nextInt(3);
         } while (level <= 0);
         String durability = durabilities[swordId % 3];
-        int damage = (int)(60 + 10 * level * (1f/(swordId % 3 + 1))+ random.nextInt(16));
+        int damage = (int)(60 + 10 * level * Math.sqrt(1f/(swordId % 3 + 1))+ random.nextInt(16));
         float criticalPercents = ((int)(3*(1f/(swordId % 3 + 1)))+random.nextInt(3)+level);
 
         ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,names[swordId/3]+" "+PrettyLevel.toPretty(level)+" ("+durability + ")",damage,criticalPercents,level);

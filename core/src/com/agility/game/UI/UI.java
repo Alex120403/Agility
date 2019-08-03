@@ -26,7 +26,7 @@ public class UI extends Stage {
     private String message = "";
     private float opacity = 0.99f;
     private Game game;
-    private Sprite point, end;
+    private Sprite point, end, pause;
     private float swipeOpacity;
     public boolean drawText;
     public static String drawTextMessage;
@@ -57,6 +57,10 @@ public class UI extends Stage {
 
         end = new Sprite(new Texture(Gdx.files.internal("point.png")));
         end.setAlpha(0);
+
+        pause = new Sprite(new Texture(Gdx.files.internal("Icon_Pause2.png")));
+        pause.setSize(64, 64);
+        pause.setPosition(Gdx.graphics.getWidth()-pause.getWidth(), Gdx.graphics.getHeight()-pause.getHeight());
 
         this.game = game;
     }
