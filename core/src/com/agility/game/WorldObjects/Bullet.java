@@ -16,13 +16,14 @@ public class Bullet extends Actor {
     private Sprite sprite;
     private float stateTime;
     private boolean destroy;
+    private boolean alreadyDestroyed;
 
     public Bullet(Body body, String spriteName, Vector2 velocity, int direction) {
         this.body = body;
         this.velocity = velocity;
         this.direction = direction;
         this.sprite = new Sprite(new Texture(Gdx.files.internal(spriteName)));
-        sprite.setFlip(direction == -1,false);
+        sprite.setFlip(direction == -1, false);
         sprite.setScale(0.8f);
 
         body.setActive(false);
@@ -39,7 +40,8 @@ public class Bullet extends Actor {
         if(stateTime >= 0.1f && !body.isActive()) {
             body.setActive(true);
         }
-        if(destroy) {
+        if(destroy && !alreadyDestroyed) {
+            alreadyDestroyed = true;
             Game.getMainWorld().destroyBody(body);
             Game.getBullets().remove(this);
             Game.getStage().getActors().removeValue(this,false);

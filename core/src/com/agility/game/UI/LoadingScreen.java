@@ -23,12 +23,11 @@ public class LoadingScreen extends Actor {
     }
 
     private static void init() {
-        animation = new AnimationWithOffset(new Animation<Sprite>(0.5f,new SpritePack("loadingScreen/loading",4).content),0,0, 0);
+        animation = new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("loadingScreen/loading",4).content),0,0, 0);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        System.out.println("LSDRAW");
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glClearColor(0,0,0,1);
         stateTime += Gdx.graphics.getDeltaTime();

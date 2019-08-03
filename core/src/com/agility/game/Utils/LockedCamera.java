@@ -29,4 +29,7 @@ public class LockedCamera extends OrthographicCamera {
 
         }
     }
+    public void shake(int direction) {
+        position.x += 1*direction;
+    }
 }

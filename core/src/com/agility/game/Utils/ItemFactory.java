@@ -19,7 +19,7 @@ public class ItemFactory {
         int swordId = random.nextInt(71);
         int level;
         do {
-            level = game.getCurrentLevelNumber() - 5 + random.nextInt(10);
+            level = game.getCurrentLevelNumber() - 1 + random.nextInt(3);
         } while (level <= 0);
         String durability = durabilities[swordId % 3];
         int damage = (int)(60 + 10 * level * (1f/(swordId % 3 + 1))+ random.nextInt(16));

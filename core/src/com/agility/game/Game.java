@@ -75,6 +75,7 @@ public class Game extends com.badlogic.gdx.Game {
     private static LevelSelectionMenu levelSelectionMenu;
     public static LockedCamera camera;
     private SpriteBatch batch;
+    public static ArrayList<Item> onGroundItems = new ArrayList<Item>();
     private Map map;
     private BoosterChoice currentChoice;
     public static float zoom = 7.5f;
@@ -94,6 +95,8 @@ public class Game extends com.badlogic.gdx.Game {
     private boolean choose, pause;
     private boolean freeze;
     private int currentLevelNumber;
+
+    public static int drawableItemGrabRequests;
 
 
     public Game() {
@@ -207,6 +210,8 @@ public class Game extends com.badlogic.gdx.Game {
                 e.setAnimation("idle");
             }
         }
+
+        drawableItemGrabRequests = 0;
     }
 
     // Finish current level
@@ -214,6 +219,7 @@ public class Game extends com.badlogic.gdx.Game {
         currentState = STATE_IN_MAIN_MENU;
         enemies.clear();
         BlockFactory.refreshVariables();
+        onGroundItems.clear();
         Gdx.input.setInputProcessor(new MainMenuInputProcessor(mainMenu, levelSelectionMenu));
     }
 
@@ -325,7 +331,6 @@ public class Game extends com.badlogic.gdx.Game {
             Hero.setPosition(BlockFactory.heroStartPos);
 
 
-            ItemInfo.init();
             createStartSword();
             Coin.loadAtlases();
             ExitPortal exitPortal = new ExitPortal(this,BlockFactory.exitPos);
@@ -613,6 +618,10 @@ public class Game extends com.badlogic.gdx.Game {
         currentState = STATE_IN_LEVEL_SELECTION;
     }
 
+    public void drawLoadingScreen() {
+        levelSelectionMenu.draw();
+    }
+
     public static LevelSelectionMenu getLevelSelectionMenu() {
         return levelSelectionMenu;
     }
@@ -623,37 +632,24 @@ public class Game extends com.badlogic.gdx.Game {
 
         screen = new LoadingScreen();
         levelSelectionMenu.addActor(screen);
-        Thread loadingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Gdx.app.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        System.out.print("Init box2d............");
-                        init("box2d");
-                        System.out.print("Init hero.............");
-                        init("hero");
-                        System.out.print("Init camera...........");
-                        init("camera");
-                        System.out.print("Init stage............");
-                        init("stage");
-                        System.out.print("Init ui...............");
-                        init("ui");
-
-
-
-                        start(level);
-                    }
-                });
-            }
-        });
-        loadingThread.setPriority(9);
-        loadingThread.start();
-
-
-
-
+        screen.setZIndex(10000);
+        drawLoadingScreen();
+        System.out.print("Init box2d............");
+        init("box2d");
+        drawLoadingScreen();
+        System.out.print("Init hero.............");
+        init("hero");
+        drawLoadingScreen();
+        System.out.print("Init camera...........");
+        init("camera");
+        drawLoadingScreen();
+        System.out.print("Init stage............");
+        init("stage");
+        drawLoadingScreen();
+        System.out.print("Init ui...............");
+        init("ui");
+        drawLoadingScreen();
+        start(level);
     }
 
     public int getCurrentState() {

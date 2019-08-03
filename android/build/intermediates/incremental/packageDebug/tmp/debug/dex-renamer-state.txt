@@ -1,4 +1,4 @@
-#Tue Jul 30 23:38:58 GMT+03:00 2019
+#Fri Aug 02 22:55:38 GMT+03:00 2019
 base.0=E\:\\Android\\Agility\\android\\build\\intermediates\\transforms\\dexMerger\\debug\\0
 path.0=classes.dex
 renamed.0=classes.dex

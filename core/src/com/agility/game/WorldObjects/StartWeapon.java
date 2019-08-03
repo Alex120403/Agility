@@ -30,7 +30,7 @@ public class StartWeapon extends Item {
 
     public StartWeapon(Vector2 position, World world, Game game, ItemInfo info) {
         super(position,world);
-        this.info = info;
+        this.state = info;
         this.position = position;
         setZIndex(0);
 

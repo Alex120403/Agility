@@ -32,6 +32,8 @@ public class UI extends Stage {
     public static String drawTextMessage;
     public float drawTextX,drawTextY,drawTextOpacity;
 
+    private ItemEquipRequest itemEquipRequest;
+
     private static ShapeRenderer debugRenderer = new ShapeRenderer();
 
 
@@ -42,7 +44,8 @@ public class UI extends Stage {
 
         healthPanel = new HeroHealthPanel(game);
         addActor(healthPanel);
-
+        itemEquipRequest = new ItemEquipRequest();
+        addActor(itemEquipRequest);
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 30;
@@ -98,6 +101,7 @@ public class UI extends Stage {
         //end.draw(getBatch());
         getBatch().end();
         opacity-=(1-opacity)/25;
+
         //log("FPS: "+Gdx.graphics.getFramesPerSecond());
     }
 

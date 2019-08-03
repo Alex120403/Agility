@@ -305,6 +305,7 @@ public class Hero extends Actor {
 
     public void equip(Item item, boolean silent) {
         if(item.getType() == ItemInfo.TYPE_WEAPON) {
+
             weapon = item;
             hasWeapon = true;
             if(Game.getUi() != null && !silent) {
@@ -506,9 +507,10 @@ public class Hero extends Actor {
     }
 
     private void checkForDeath() {
-        if(health<=0) {
+        if(health <= 0) {
             setAnimation("die");
             isDied = true;
+            health = 0;
         }
     }
 
@@ -536,6 +538,7 @@ public class Hero extends Actor {
         swordSwipe.createFixture(fixtureDef);
         swordSwipe.setUserData("weaponSwipe");
 
+        Game.getCamera().shake(direction);
     }
 
     private void printState() {
@@ -717,7 +720,6 @@ public class Hero extends Actor {
             }
             itemInfoInEdge = item.getInfo();
             Game.getUi().addActor(itemInfoInEdge);
-            ItemInfo.resetPosition();
         }
         else {
             Game.log("Not enough free space in inventory...");

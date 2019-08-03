@@ -41,22 +41,22 @@ public class Enemy extends Actor {
 
 
     public Enemy(EnemyDef def, World world, Vector2 position, Game game) {
-        System.out.println(def);
+        this.world = world;
+        this.position = position;
+        this.game = game;
         maxHealth = def.maxHealth;
         health = maxHealth;
         DEFAULT_COOLDOWN = def.cooldown;
         cooldown = def.cooldownInStart;
         animations = def.animations;
-        damage = def.damageDealt;
+        damage = getRealDamage(def.damageDealt);
         stateTimeSlash = def.stateTimeSlash;
         visibilityX = def.visibilityX;
         visibilityY = def.visibilityY;
         attackRange = def.attackRange;
         runVelocity = def.runVelocity;
         ranged = def.ranged;
-        this.world = world;
-        this.position = position;
-        this.game = game;
+
         setName("enemy");
         //cooldown =
 
@@ -134,7 +134,7 @@ public class Enemy extends Actor {
                 setAnimation("idle");
             }
         }
-        if(health<=0) {
+        if(health <= 0) {
             dropDiamonds();
             body.setLinearVelocity(0,0);
             alpha-=0.002f;
@@ -166,7 +166,7 @@ public class Enemy extends Actor {
         }
 
 
-        if(alpha<=0.01f) {
+        if(alpha <= 0.01f) {
             game.getEnemies().remove(this);
             game.getStage().getActors().removeValue(this,true);
         }
@@ -194,8 +194,8 @@ public class Enemy extends Actor {
         }
         else if(isAttacking) {
             body.setLinearVelocity(0,body.getLinearVelocity().y);
-            if(stateTime>=stateTimeSlash && stateTime <= stateTimeSlash+0.1f && !alreadyDealedDamage && !died) {
-                if(!ranged) {
+            if(stateTime >= stateTimeSlash && stateTime <= stateTimeSlash+0.1f && !alreadyDealedDamage && !died) {
+                if(!ranged || true) {
                     if (Math.abs(Hero.getPosition().y - position.y) <= visibilityY) {
                         if (direction == 1 && Hero.getPosition().x - position.x <= attackRange && Hero.getPosition().x - position.x > 0) {
                             game.getHero().damage(damage);
@@ -216,7 +216,7 @@ public class Enemy extends Actor {
                         BodyDef def = new BodyDef();
                         def.gravityScale = 0;
                         def.type = BodyDef.BodyType.DynamicBody;
-                        def.position.x = getBody().getPosition().x + 2 + 3*direction;
+                        def.position.x = getBody().getPosition().x + 2 + 3 * direction;
                         def.position.y = getBody().getPosition().y + 8.5f;
                         def.bullet = true;
 
@@ -260,6 +260,15 @@ public class Enemy extends Actor {
         cooldown();
 
     }
+
+    private int getRealDamage(float basic) {
+        return (int)(basic*Math.pow(GameBalanceConstants.DAMAGE_MULTIPLIER, game.getCurrentLevelNumber()-1));
+    }
+
+    private int getRealHealth(float basic) {
+        return (int)(basic*Math.pow(GameBalanceConstants.HEALTH_MULTIPLIER, game.getCurrentLevelNumber()-1));
+    }
+
     private void init(String request) {
         if(request.equals("body")) {
             BodyDef def = new BodyDef();
