@@ -2,17 +2,15 @@ package com.agility.game;
 
 import com.agility.game.UI.ItemInfo;
 import com.agility.game.UI.OnHitDamageView;
-import com.agility.game.UI.UI;
 import com.agility.game.Utils.AnimationWithOffset;
 import com.agility.game.Utils.GameBalanceConstants;
-import com.agility.game.Utils.LockedCamera;
 import com.agility.game.Utils.SimpleDirectionGestureDetector;
+import com.agility.game.Utils.SoundPlayer;
 import com.agility.game.Utils.SpritePack;
 import com.agility.game.WorldObjects.Bullet;
 import com.agility.game.WorldObjects.Item;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -22,13 +20,10 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -85,6 +80,7 @@ public class Hero extends Actor {
     private int clearDamage, clearCriticalStrike;
     private Spell spell;
     private boolean grab, grabAbility;
+    private boolean blow;
 
     //private Music runSound;
 
@@ -123,7 +119,7 @@ public class Hero extends Actor {
 
             @Override
             public void onUp() {
-                if(mana >= 0.33f && !isCasting()) {
+                if(canCast()) {
                     cast();
                 }
 
@@ -147,7 +143,7 @@ public class Hero extends Actor {
 
             @Override
             public void onDown() {
-                if(!isDied)
+                if(canRoll())
                     roll(direction);
             }
 
@@ -162,7 +158,7 @@ public class Hero extends Actor {
                             body.setLinearVelocity(0, body.getLinearVelocity().y);
                             if (hasWeapon) {
 
-                                swipes[random.nextInt(3)].play(1f);
+                                SoundPlayer.play(swipes[random.nextInt(3)]);
                                 setAnimation("attack" + ((++attackOrder % 3) + 1));
                             } else {
                                 setAnimation("beat");
@@ -188,8 +184,16 @@ public class Hero extends Actor {
         },game));
     }
 
+    private boolean canCast() {
+        return mana >= 1 && !isCasting() && onGround && !isDied;
+    }
+
+    private boolean canRoll() {
+        return !isDied && !isCasting();
+    }
+
     private void cast() {
-        mana -= 0.33f;
+        mana = 0;
         Vector2 pos = position.cpy();
         pos.x += 3;
         if(direction == -1) {
@@ -202,13 +206,13 @@ public class Hero extends Actor {
     }
 
     private void jump() {
-        if(!isDied && jumpBlock == 0) {
+        if(!isDied && jumpBlock == 0 && !blow) {
             if (wallTouchDirection == 0 || touchings == 1) {
                 if (avaliableJumps > 0) {
                     avaliableJumps -= 1;
                     body.setLinearVelocity(body.getLinearVelocity().x, 0);
                     body.applyLinearImpulse(new Vector2(0, 15000), new Vector2(0, 0), true);
-                    jumps[avaliableJumps].play();
+                    SoundPlayer.play(jumps[avaliableJumps]);
                     isAttacking = false;
                     stabilizeSpeed();
                 }
@@ -217,7 +221,7 @@ public class Hero extends Actor {
             } else if (wallTouchDirection == -1) {
                 if (!onGround && avaliableJumps != 2) {
                     body.setLinearVelocity(0, 0);
-                    jumps[1].play();
+                    SoundPlayer.play(jumps[1]);
                     body.applyLinearImpulse(new Vector2(-999999999, 999999999), new Vector2(0, 0), true);
                     wallTouchDirection = 0;
                 }
@@ -228,7 +232,7 @@ public class Hero extends Actor {
             else {
                 if (wallTouchDirection == 1 && !onGround && avaliableJumps != 2) {
                     body.setLinearVelocity(0, 0);
-                    jumps[1].play();
+                    SoundPlayer.play(jumps[1]);
                     body.applyLinearImpulse(new Vector2(999999999, 999999999), new Vector2(0, 0), true);
                     wallTouchDirection = 0;
                 }
@@ -278,14 +282,20 @@ public class Hero extends Actor {
         }
     }
 
-    public void stop() {
+    public void stop(boolean setIdle) {
         body.setLinearVelocity(0,0);
-        if (hasWeapon) {
-            setAnimation("idle-sword");
-        } else {
-            setAnimation("idle");
+        if(setIdle) {
+            if (hasWeapon) {
+                setAnimation("idle-sword");
+            } else {
+                setAnimation("idle");
+            }
         }
         stopped = true;
+    }
+
+    public void stop() {
+        stop(true);
     }
 
     private void endAttack() {
@@ -316,6 +326,8 @@ public class Hero extends Actor {
 
     public void roll(int rollDirection) {
         setAnimation("roll");
+        isAttacking = false;
+        anotherOneAttack = false;
         PolygonShape ps = (PolygonShape)(body.getFixtureList().get(0).getShape());
         ps.setAsBox(4,0.01f);
         enemies = new ArrayList<Enemy>();
@@ -328,7 +340,7 @@ public class Hero extends Actor {
         for (Enemy e:enemies) {
             e.getBody().setActive(false);
         }
-        rollSound.play();
+        SoundPlayer.play(rollSound);
         isRolling = true;
         rollingTimer = 24;
         this.rollDirection = rollDirection;
@@ -362,9 +374,13 @@ public class Hero extends Actor {
         checkForDeath();
         checkForRoll();
         reduceJumpBlock();
+        if((currentAnimation.equals("attack1") || currentAnimation.equals("attack2") || currentAnimation.equals("attack3")) && touchings == 0) {
+            setAnimation("jump");
+        }
         if(wallTouchDirection != 0 && touchings == 0) {
             wallTouchDirection = 0;
         }
+        //Game.log("Roll = "+isRolling +"  SlTimer = "+afterRollingSlowlinessTimer + "  IsAttacking = "+isAttacking);
         //printState();
 
         position = body.getPosition();
@@ -384,7 +400,11 @@ public class Hero extends Actor {
             damaged--;
         }
 
-        if(!stopped && !isRolling && !isDied && !isCasting()) {
+        if(currentAnimation.equals("hurt") && stateTime >= 0.3f) {
+            setAnimation("run");
+        }
+
+        if(!stopped && !isRolling && !isDied && !isCasting() && !blow) {
             stabilizeSpeed();
         }
         else if(isDied) {
@@ -493,6 +513,13 @@ public class Hero extends Actor {
             restoreBody();
         }
 
+        if(!isRolling && afterRollingSlowlinessTimer > 0) {
+            afterRollingSlowlinessTimer--;
+            if(afterRollingSlowlinessTimer <= 0) {
+                stabilizeSpeed();
+            }
+        }
+
         if(isRolling && wallTouchDirection != 0) {
             afterRollingSlowlinessTimer = 10;
             stabilizeSpeed();
@@ -578,7 +605,7 @@ public class Hero extends Actor {
             isAttacking = true;
             //  direction = 0;
             if(hasWeapon) {
-                swipes[random.nextInt(3)].play(1f);
+                SoundPlayer.play(swipes[random.nextInt(3)]);
                 setAnimation("attack" + ((++attackOrder % 3) + 1));
             }
             else {
@@ -634,22 +661,39 @@ public class Hero extends Actor {
         }
         else if(request.equalsIgnoreCase("animations")) {
             animations.put("run",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("hero/run",6).content),2,0, -8));
+
             animations.put("idle",new AnimationWithOffset(new Animation<Sprite>(0.4f,new SpritePack("hero/idle",4).content),2,0, -8));
+
             animations.put("jump",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/crnr-jmp",2).content),2,0, -8));
+
             animations.put("roll",new AnimationWithOffset(new Animation<Sprite>(0.09f,new SpritePack("hero/smrslt",4).content),0,-3, -8));
+
             animations.put("back-roll",new AnimationWithOffset(new Animation<Sprite>(0.09f,new SpritePack("hero/back-smrslt",4).content),0,-3, -8));
+
             animations.put("die",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/die",7).content),2,0, -8));
+
             animations.put("attack1",new AnimationWithOffset(new Animation<Sprite>(0.05f,new SpritePack("hero/attack1",5).content),2,0, -8));
+
             animations.put("attack2",new AnimationWithOffset(new Animation<Sprite>(0.05f,new SpritePack("hero/attack2",6).content),2,0, -8));
+
             animations.put("attack3",new AnimationWithOffset(new Animation<Sprite>(0.05f,new SpritePack("hero/attack3",6).content),2,0, -8));
+
             animations.put("getsword",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/swrd-drw",4).content),2,0, -8));
+
             animations.put("removesword",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/swrd-shte",4).content),2,0, -8));
+
             animations.put("idle-sword",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/idle-2",4).content),2,0, -8));
+
             animations.put("cast",new AnimationWithOffset(new Animation<Sprite>(0.5f,new SpritePack("hero/cast",4).content),2,0, -8));
+
             animations.put("beat",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("hero/cast",4).content),2,0, -8));
+
             animations.put("fall",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/fall",2).content),2,0, -8));
+
             animations.put("wall-slide",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/wall-slide",2).content),0,0, -8));
+
             animations.put("hurt",new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("hero/hurt",3).content),0,0, -8));
+
             animations.put("grab",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("hero/crnr-clmb",5).content),0,-4, -8));
 
 
@@ -729,6 +773,7 @@ public class Hero extends Actor {
     public void touchBlock(Contact contact) {
         touchings++;
         grabAbility = false;
+        blow = false;
 
         Body block = null;
         if(contact.getFixtureA().getBody().getUserData().equals("player") && contact.getFixtureB().getBody().getUserData().equals("block")) {
@@ -751,7 +796,7 @@ public class Hero extends Actor {
                 avaliableJumps = 2;
                 if (!currentAnimation.equals("run") && !isRolling && !stopped) {
                     setAnimation("run");
-                    onGroundStep.play();
+                    SoundPlayer.play(onGroundStep);
                 }
             } else if (block.getPosition().y + 4 >= position.y - 25) {
                 if (block.getPosition().x > position.x) {
@@ -883,5 +928,23 @@ public class Hero extends Actor {
 
     public boolean isRolling() {
         return isRolling;
+    }
+
+    public void blow() {
+        for (int i = 0; i < 10; i++) {
+            body.applyLinearImpulse(new Vector2(-999999999*direction,999999999), new Vector2(0,0), true);
+        }
+        body.setLinearVelocity(-200*direction,500);
+        blow = true;
+
+    }
+
+    public void setMana(float i) {
+        mana = i;
+        drawExpBar(1);
+    }
+
+    public boolean hasWeapon() {
+        return hasWeapon;
     }
 }

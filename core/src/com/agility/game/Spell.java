@@ -1,6 +1,7 @@
 package com.agility.game;
 
 import com.agility.game.Utils.AnimationWithOffset;
+import com.agility.game.Utils.SoundPlayer;
 import com.agility.game.Utils.SpritePack;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -36,7 +37,7 @@ public class Spell extends Actor {
         if(sound == null) {
             sound = Gdx.audio.newSound(Gdx.files.internal("sounds/lighting.ogg"));
         }
-        sound.play();
+        SoundPlayer.play(sound);
     }
 
     @Override

@@ -2,22 +2,18 @@ package com.agility.game.UI;
 
 import com.agility.game.Game;
 import com.agility.game.Hero;
-import com.agility.game.Utils.SimpleDirectionGestureDetector;
+import com.agility.game.Utils.UIButtonEvent;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class UI extends Stage {
     public boolean tapOnUI, swipeOpacityDecreaseUnlocked;
@@ -26,26 +22,33 @@ public class UI extends Stage {
     private String message = "";
     private float opacity = 0.99f;
     private Game game;
-    private Sprite point, end, pause;
+    private Sprite point, end;
     private float swipeOpacity;
     public boolean drawText;
     public static String drawTextMessage;
     public float drawTextX,drawTextY,drawTextOpacity;
 
+    private UIButton pause;
+
     private ItemEquipRequest itemEquipRequest;
+    private BoosterTakeRequest boosterTakeRequest;
 
     private static ShapeRenderer debugRenderer = new ShapeRenderer();
+    private boolean drawBossHealth;
+    private float healthPercents;
+    private Texture hpbg;
+    private Texture hpfg;
 
 
-
-
-    public UI(Game game) {
+    public UI(final Game game) {
         super();
 
         healthPanel = new HeroHealthPanel(game);
         addActor(healthPanel);
         itemEquipRequest = new ItemEquipRequest();
         addActor(itemEquipRequest);
+        boosterTakeRequest = new BoosterTakeRequest();
+        addActor(boosterTakeRequest);
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 30;
@@ -58,11 +61,23 @@ public class UI extends Stage {
         end = new Sprite(new Texture(Gdx.files.internal("point.png")));
         end.setAlpha(0);
 
-        pause = new Sprite(new Texture(Gdx.files.internal("Icon_Pause2.png")));
-        pause.setSize(64, 64);
-        pause.setPosition(Gdx.graphics.getWidth()-pause.getWidth(), Gdx.graphics.getHeight()-pause.getHeight());
+        pause = new UIButton(new UIButtonEvent() {
+            @Override
+            public void handle() {
+                if(!Game.isPaused()) {
+                    addPausePanel();
+                }
+            }
+        }, new Vector2(Gdx.graphics.getWidth() - 128, Gdx.graphics.getHeight() - 128), 128, "Icon_Pause2");
+        addActor(pause);
 
         this.game = game;
+    }
+
+    private void addPausePanel() {
+        addActor(new PausePanel(game, Game.getUi()));
+        game.pause(true);
+        tapOnUI = true;
     }
 
     public void addFlingPiece(int x, int y) {
@@ -72,20 +87,6 @@ public class UI extends Stage {
     @Override
     public void draw() {
         super.draw();
-        /*if(swipeOpacityDecreaseUnlocked && swipeOpacity > 0) {
-            drawDebugLine(new Vector2(point.getX()+point.getWidth()/2,
-                    point.getY()+point.getWidth()/2), new Vector2(end.getX()+point.getWidth()/2,
-                    end.getY()+point.getWidth()/2), getCamera().combined,swipeOpacity);
-            swipeOpacity-=(1-swipeOpacity)/3;
-            point.setAlpha(swipeOpacity);
-            end.setAlpha(swipeOpacity);
-        }
-        else {
-            swipeOpacityDecreaseUnlocked = false;
-            swipeOpacity = 0;
-            point.setAlpha(swipeOpacity);
-            end.setAlpha(swipeOpacity);
-        }*/
         getBatch().begin();
         font.setColor(0.8f, 0.8f, 0.8f, opacity);
         font.draw(getBatch(), message, 40, 50);
@@ -97,27 +98,29 @@ public class UI extends Stage {
                 drawText = false;
             }
         }
+
+        if(drawBossHealth) {
+            getBatch().draw(hpbg, Gdx.graphics.getWidth()/4-4, Gdx.graphics.getHeight()-100-4, Gdx.graphics.getWidth()/2+8, hpbg.getHeight()+4+8);
+            getBatch().draw(hpfg,Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()-100, Gdx.graphics.getWidth()/2 * healthPercents, hpbg.getHeight()+4);
+            drawBossHealth = false;
+        }
+
         Hero.blood.draw(Game.getUi().getBatch(), (float)Math.pow(1 - game.getHero().getHealth()/game.getHero().getMaxHealth(),2));
         if(game.getHero().damaged > 0) {
             Hero.blood.draw(Game.getUi().getBatch(),0.7f*(game.getHero().damaged/20f));
         }
-        //point.draw(getBatch());
-        //end.draw(getBatch());
         getBatch().end();
         opacity-=(1-opacity)/25;
-
-        //log("FPS: "+Gdx.graphics.getFramesPerSecond());
     }
 
     public boolean tap(int x, int y) {
         tapOnUI = false;
-        try {
-            for (int i = 0; i < getActors().size; i++) {
-                getActors().get(i).hit((float)x, (float)y,false);
+        for (int i = 0; i < getActors().size; i++) {
+            try {
+                getActors().get(i).hit((float) x, (float) y, false);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
-        catch (Exception e) {
-
         }
         return tapOnUI;
     }
@@ -172,5 +175,12 @@ public class UI extends Stage {
 
     public Game getGame() {
         return game;
+    }
+
+    public void drawBossHealth(float healthPercents, Texture hpbg, Texture hpfg) {
+        drawBossHealth = true;
+        this.healthPercents = healthPercents;
+        this.hpbg = hpbg;
+        this.hpfg = hpfg;
     }
 }

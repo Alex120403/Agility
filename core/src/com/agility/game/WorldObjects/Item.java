@@ -3,6 +3,8 @@ package com.agility.game.WorldObjects;
 import com.agility.game.Game;
 import com.agility.game.Hero;
 import com.agility.game.UI.ItemInfo;
+import com.agility.game.Utils.ItemFactory;
+import com.agility.game.Utils.PrettyLevel;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,7 +25,7 @@ public class Item extends Actor implements Serializable {
     private boolean alreadyStoppedHero;
     ItemInfo state;
     protected transient BitmapFont font;
-    public transient Color color;
+    public transient Color color = Color.WHITE, fontColor = Color.WHITE;
 
     public Item() {
     }
@@ -36,29 +38,33 @@ public class Item extends Actor implements Serializable {
         if(iconName != null) {
             icon = new Sprite(new Texture("items/"+iconName + ".png"));
         }
-        color = new Color((float)Math.random()*2,(float)Math.random()*2,(float)Math.random()*2,1);
+        //color = new Color((float)Math.random()*2,(float)Math.random()*2,(float)Math.random()*2,1);
 
         if (font == null) {
-            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
-            parameter.size = 32;
-            parameter.color = Color.WHITE;
-            font = generator.generateFont(parameter);
-            font.getData().setScale(0.22f);
-            generator.dispose();
-
+            initFont();
         }
     }
+
+    private void initFont() {
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
+        parameter.size = 32;
+        parameter.color = fontColor;
+        font = generator.generateFont(parameter);
+        font.getData().setScale(0.22f);
+        generator.dispose();
+    }
+
     public void addToWorld(Stage stage, Vector2 position) {
         stage.addActor(this);
         setPosition(position.x,position.y);
         if(icon != null) {
             icon.setPosition(position.x, position.y + 1);
             icon.setFlip(true, false);
-            icon.setSize(8, 8);
+            icon.setSize(Math.round(icon.getWidth()/2), Math.round(icon.getHeight()/2));
             icon.setColor(color);
 
-            info.setPosition(position.x-2, position.y + 9);
+            info.setPosition(position.x-2, position.y + icon.getHeight()+1);
             info.setSize(192/9, 128/9);
             Game.getUi().addActor(state);
         }
@@ -114,15 +120,15 @@ public class Item extends Actor implements Serializable {
 
             if (Game.getHero().getWeapon().getParameter2() < state.getParameter2()) {
                 font.setColor(Color.GREEN);
-                font.draw(batch, ": " + (int)state.getParameter2(), info.getX() + 4.5f, info.getY() + 5.5f);
+                font.draw(batch, ": " + (int)state.getParameter2() + "%", info.getX() + 4.5f, info.getY() + 5.5f);
                 font.setColor(Color.WHITE);
             } else if (Game.getHero().getWeapon().getParameter2() > state.getParameter2()) {
                 font.setColor(Color.RED);
-                font.draw(batch, ": " + (int)state.getParameter2(), info.getX() + 4.5f, info.getY() + 5.5f);
+                font.draw(batch, ": " + (int)state.getParameter2() + "%", info.getX() + 4.5f, info.getY() + 5.5f);
                 font.setColor(Color.WHITE);
             } else {
                 font.setColor(Color.YELLOW);
-                font.draw(batch, ": " + (int)state.getParameter2(), info.getX() + 4.5f, info.getY() + 5.5f);
+                font.draw(batch, ": " + (int)state.getParameter2() + "%", info.getX() + 4.5f, info.getY() + 5.5f);
                 font.setColor(Color.WHITE);
             }
         }
@@ -165,5 +171,10 @@ public class Item extends Actor implements Serializable {
             }
         }
         return nearestItem.equals(this) && rangeToHero() <= 50;
+    }
+
+    public void upgrade() {
+        state.setParameter1((int)(state.getParameter1()*1.15f));
+        state.setParameter2((state.getParameter2()*1.07f));
     }
 }

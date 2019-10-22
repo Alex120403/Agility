@@ -36,10 +36,20 @@ public class BlockFactory {
     private static final BlockFactory ourInstance = new BlockFactory();
     public static Vector2 heroStartPos;
     public static Vector2 startWeaponPos;
+    public static Vector2 bossPos;
     public static ArrayList<Vector2> enemiesPos = new ArrayList<Vector2>();
     public static ArrayList<Vector2> boostsPos = new ArrayList<Vector2>();
     public static ArrayList<Vector2> gatesPos = new ArrayList<Vector2>();
+
+    // NPC
+    public static ArrayList<Vector2> castersPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> ninjasPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> warriorsPos = new ArrayList<Vector2>();
+    public static ArrayList<Vector2> witchesPos = new ArrayList<Vector2>();
+
+
     public static Vector2 exitPos;
+
 
     public static BlockFactory getInstance() {
         if (atlas == null) {
@@ -53,7 +63,7 @@ public class BlockFactory {
         final int[] ml = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
                 34, 35, 36, 38, 40, 41, 43, 44, 45, 46, 47, 48, 49,  51, 52,
                 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 74, 75,
-                76, 77, 78, 79, 80, 82,83,92,93,95,98,99,100,107,108,109,208,209,210,224,225,226,240,241,242, 211,212,213,227,228,229,243,244,245};
+                76, 77, 78, 79, 80, 82,83,92,93,95,98,99,100,107,108,109,208,209,210,214,215,216,217,218,230,231,232,233,234,246,247,248,249,250,262,263,264,265,266,278,279,294,295,224,225,226,240,241,242, 211,212,213,227,228,229,243,244,245, };
         for (int i = 0; i < ml.length; i++) {
             midLayerIds.add(ml[i]);
         }
@@ -62,7 +72,7 @@ public class BlockFactory {
         for (int i = 0; i < fgl.length; i++) {
             fgLayerIds.add(fgl[i]);
         }
-        final int[] reserved = {181, 182, 183, 184, 185, 186, 141, 142, 143, 157, 158, 159, 173, 174, 175};
+        final int[] reserved = {181, 182, 183, 184, 185, 186, 141, 142, 143, 157, 158, 159, 173, 174, 175, 187, 203, 219, 235, 251};
         for (int i = 0; i < reserved.length; i++) {
             reserv.add(reserved[i]);
         }
@@ -113,6 +123,9 @@ public class BlockFactory {
                 case (186):
                     gatesPos.add(position);
                     break;
+                case (187):
+                    bossPos = position;
+                    break;
 
                 // Decorations
                 case (141):
@@ -142,6 +155,20 @@ public class BlockFactory {
                 case (175):
                     vasesPos.add(position);
                     break;
+
+                // NPC
+                case (203):
+                    castersPos.add(position);
+                    break;
+                case (219):
+                    ninjasPos.add(position);
+                    break;
+                case (235):
+                    warriorsPos.add(position);
+                    break;
+                case (251):
+                    witchesPos.add(position);
+                    break;
             }
             layer = 1;
             tile = new TextureRegion(atlas, 0, 0, 8, 8);
@@ -170,6 +197,7 @@ public class BlockFactory {
         exitPos = null;
         enemiesPos.clear();
         boostsPos.clear();
+        bossPos = null;
 
         // Clear decorations positions
         anvilsPos.clear();
@@ -181,5 +209,11 @@ public class BlockFactory {
         pristsPos.clear();
         signsPos.clear();
         vasesPos.clear();
+
+        // Clear NPC positions
+        castersPos.clear();
+        ninjasPos.clear();
+        warriorsPos.clear();
+        witchesPos.clear();
     }
 }

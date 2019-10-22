@@ -65,10 +65,10 @@ public class Coin extends Actor {
             atlases[i] = new Texture(Gdx.files.internal("itemAtlases/"+i+".gif"));
             for (int j = 0; j < sprites.length-1; j++) {
                 sprites[j][i] = new Sprite(new TextureRegion(atlases[i],105+84*j,40,100,84));
-                sprites[j][i].setSize(10f/1.5f,8.4f/1.5f);
+                sprites[j][i].setSize(10f/2,8.4f/2);
             }
             sprites[5][i] = new Sprite(new TextureRegion(atlases[i],105+84*4,40+100*3,100,84));
-            sprites[5][i].setSize(10f/1.5f,8.4f/1.5f);
+            sprites[5][i].setSize(10f/2,8.4f/2);
         }
         MoneyMonitor.setAnimation(sprites[5]);
     }

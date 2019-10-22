@@ -4,12 +4,14 @@ import com.agility.game.Utils.AnimationWithOffset;
 import com.agility.game.Utils.EnemyDef;
 import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.Utils.KillsCounter;
+import com.agility.game.Utils.SpritePack;
 import com.agility.game.WorldObjects.Bullet;
 import com.agility.game.WorldObjects.Coin;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
@@ -23,21 +25,24 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.util.HashMap;
 
 public class Enemy extends Actor {
-    private Body body;
+    protected Body body;
     protected final World world;
-    private Vector2 position, dieposition;
+    protected Vector2 position, dieposition;
     private int direction = 1, damaged;
     private Sprite currentFrame;
     private String currentAnimation = "idle";
     private final float DEFAULT_COOLDOWN, stateTimeSlash;
-    private float stateTime = 0, maxHealth,health, cooldown, alpha = 1 , damage, visibilityX, visibilityY, attackRange, runVelocity;
+    protected float stateTime = 0;
+    protected float maxHealth,health, cooldown, alpha = 1 , damage, visibilityX, visibilityY, attackRange, runVelocity;
     private final HashMap<String,AnimationWithOffset> animations;
-    private final Texture hpbg,hpfg;
+    protected final Texture hpbg,hpfg;
     protected boolean died = false,alreadyDealedDamage, isAttacking, hasDrop = Math.random()<=GameBalanceConstants.EQUIPMENT_DROP_CHANCE, hasDiamonds = true;
     private Game game;
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
     private boolean fragged;
     private boolean ranged;
+    private static AnimationWithOffset attackNotification;
+    private boolean isBoss;
 
 
     public Enemy(EnemyDef def, World world, Vector2 position, Game game) {
@@ -56,6 +61,14 @@ public class Enemy extends Actor {
         attackRange = def.attackRange;
         runVelocity = def.runVelocity;
         ranged = def.ranged;
+        isBoss = def.boss;
+        if(isBoss) {
+            hasDrop = true;
+        }
+
+        if(attackNotification == null) {
+            attackNotification = new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("warning",2,0.3f).content),0,0, 0);
+        }
 
         setName("enemy");
         //cooldown =
@@ -134,6 +147,7 @@ public class Enemy extends Actor {
                 setAnimation("idle");
             }
         }
+
         if(health <= 0) {
             dropDiamonds();
             body.setLinearVelocity(0,0);
@@ -157,7 +171,7 @@ public class Enemy extends Actor {
         if(alpha <= 0.95f) {
             if (hasDrop) {
                 hasDrop = false;
-                game.addRandomItem(position);
+                game.addRandomItem(position, isBoss);
             }
             if(!fragged) {
                 Game.getHero().frag();
@@ -193,14 +207,19 @@ public class Enemy extends Actor {
             alreadyDealedDamage = false;
         }
         else if(isAttacking) {
+            if(stateTime <= stateTimeSlash && !died && !alreadyDealedDamage) {
+                attackNotification.animation.getKeyFrame(stateTime, true).setPosition(body.getPosition().x-3, body.getPosition().y + 19);
+                attackNotification.animation.getKeyFrame(stateTime, true).draw(batch);
+            }
             body.setLinearVelocity(0,body.getLinearVelocity().y);
             if(stateTime >= stateTimeSlash && stateTime <= stateTimeSlash+0.1f && !alreadyDealedDamage && !died) {
+
                 if(!ranged || true) {
-                    if (Math.abs(Hero.getPosition().y - position.y) <= visibilityY) {
+                    if (Math.abs(Hero.getPosition().y - position.y) <= visibilityY && !Game.getHero().isCasting()) {
                         if (direction == 1 && Hero.getPosition().x - position.x <= attackRange && Hero.getPosition().x - position.x > 0) {
-                            game.getHero().damage(damage);
+                            game.getHero().damage(damage*GameBalanceConstants.ENEMY_DAMAGE_MULTIPLIER_ABSOLUTE);
                         } else if (direction == -1 && position.x - Hero.getPosition().x <= attackRange && position.x - Hero.getPosition().x > 0) {
-                            game.getHero().damage(damage);
+                            game.getHero().damage(damage*GameBalanceConstants.ENEMY_DAMAGE_MULTIPLIER_ABSOLUTE);
                         }
                         alreadyDealedDamage = true;
 
@@ -247,11 +266,14 @@ public class Enemy extends Actor {
             batch.setColor(Color.WHITE);
             damaged--;
         }
+        drawHealthBar(batch);
+    }
+
+    protected void drawHealthBar(Batch batch) {
         if(health>0 && health != maxHealth) {
             batch.draw(hpbg, position.x - 1, position.y + 18, hpbg.getWidth() / 3, hpbg.getHeight() / 10f);
             batch.draw(hpfg, position.x - 1, position.y + 18, hpfg.getWidth() / 3 * (health / maxHealth), hpfg.getHeight() / 10f);
         }
-
     }
 
     protected void attack() {
@@ -269,7 +291,7 @@ public class Enemy extends Actor {
         return (int)(basic*Math.pow(GameBalanceConstants.HEALTH_MULTIPLIER, game.getCurrentLevelNumber()-1));
     }
 
-    private void init(String request) {
+    protected void init(String request) {
         if(request.equals("body")) {
             BodyDef def = new BodyDef();
             def.gravityScale = 70;

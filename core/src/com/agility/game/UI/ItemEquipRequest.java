@@ -28,10 +28,12 @@ public class ItemEquipRequest extends Actor {
         if(x >= frame.getX() && x <= frame.getX()+frame.getWidth() && y >= frame.getY() && y <= frame.getY()+frame.getHeight()) {
 
             Item nearestItem = getNearestItem();
-            Game.getHero().equip(nearestItem);
-            Game.getUi().tapOnUI = true;
-            Game.onGroundItems.remove(nearestItem);
-            Game.getStage().getActors().removeValue(nearestItem,false);
+            if(nearestItem.rangeToHero() <= 50) {
+                Game.getHero().equip(nearestItem);
+                Game.getUi().tapOnUI = true;
+                Game.onGroundItems.remove(nearestItem);
+                Game.getStage().getActors().removeValue(nearestItem, false);
+            }
         }
         return super.hit(x, y, touchable);
     }

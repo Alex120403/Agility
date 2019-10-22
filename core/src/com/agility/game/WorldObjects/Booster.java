@@ -31,6 +31,7 @@ public class Booster extends Actor {
     public Booster(Game game, Vector2 position) {
         setPosition(position.x, position.y);
         this.game = game;
+        Game.boosters.add(this);
         kind = new Random().nextInt(3);
         switch (kind) {
             case KIND_HEALTH:
@@ -49,18 +50,31 @@ public class Booster extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         sprite.setPosition(getX() - 4, getY() + (float)(Math.sin(statePosition)*deltaY));
+        sprite.setSize(8,8);
         sprite.draw(batch);
 
         statePosition+=0.03f;
-        checkForPlayerTouch();
+        //checkForPlayerTouch();
     }
 
     private void checkForPlayerTouch() {
         if(Math.abs(Hero.getPosition().x - getX()) <= 4 && Math.abs(Hero.getPosition().y - getY()) <= 8) {
-            Game.getStage().getActors().removeValue(this,false);
-            game.choose(kind);
+            activate();
         }
     }
 
+    public float rangeToHero() {
+        return (float) Math.hypot(Hero.getPosition().x - (getX() - 4), Hero.getPosition().y - (getY() + (float)(Math.sin(statePosition)*deltaY)));
 
+    }
+
+    public void activate() {
+        Game.boosters.remove(this);
+        Game.getStage().getActors().removeValue(this,false);
+        game.choose(kind);
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
 }

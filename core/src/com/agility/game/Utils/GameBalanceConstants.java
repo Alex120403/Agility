@@ -7,6 +7,7 @@ public class GameBalanceConstants {
     public static final double DAMAGE_MULTIPLIER = 1.2;
     public static final double HEALTH_MULTIPLIER = 1.2;
     public static final double WEAPON_MULTIPLIER = 1.15;
+    public static final float ENEMY_DAMAGE_MULTIPLIER_ABSOLUTE = 0.25f;
 
     @Deprecated
     private GameBalanceConstants() {

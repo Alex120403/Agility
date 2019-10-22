@@ -9,7 +9,7 @@ public class EnemyDef {
 
     }
 
-    public boolean ranged;
+    public boolean ranged, boss;
     public int cooldownInStart, cooldown;
     public float maxHealth, visibilityY = 5, visibilityX = 50, attackRange, runVelocity, damageDealt, stateTimeSlash;
     public HashMap<String,AnimationWithOffset> animations;

@@ -41,11 +41,13 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
 public class Game extends com.badlogic.gdx.Game {
+
 
 
     // Enemy patterns
@@ -58,6 +60,7 @@ public class Game extends com.badlogic.gdx.Game {
     public static EnemyDef ENEMY_NINJA;
     public static EnemyDef ENEMY_VIKING;
     public static EnemyDef ENEMY_SLIME;
+    public static EnemyDef ENEMY_BOSS;
 
     // Application states
     public static final int STATE_IN_MAIN_MENU = 0;
@@ -76,6 +79,7 @@ public class Game extends com.badlogic.gdx.Game {
     public static LockedCamera camera;
     private SpriteBatch batch;
     public static ArrayList<Item> onGroundItems = new ArrayList<Item>();
+    public static ArrayList<Booster> boosters = new ArrayList<Booster>();
     private Map map;
     private BoosterChoice currentChoice;
     public static float zoom = 7.5f;
@@ -92,11 +96,13 @@ public class Game extends com.badlogic.gdx.Game {
     public static StartWeapon startWeapon;
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     private static ArrayList<Bullet> bullets = new ArrayList<Bullet>();
-    private boolean choose, pause;
+    private boolean choose;
     private boolean freeze;
+    private static boolean paused;
     private int currentLevelNumber;
 
     public static int drawableItemGrabRequests;
+    private MusicHandler musicHandler;
 
 
     public Game() {
@@ -106,12 +112,12 @@ public class Game extends com.badlogic.gdx.Game {
     @Override
     public void create() {
         Gdx.gl.glClearColor(10.2f/100f,11.8f/100f,19.2f/100f,1);
-        /*File assetsDir = new File("E:\\Android\\Agility\\android\\assets\\enemies\\undead");
-        File[] assets = assetsDir.listFiles();
-        for (int i = 0; i < assets.length; i++) {
-            assets[i].renameTo(new File("E:\\Android\\Agility\\android\\assets\\enemies\\undead\\die-0"+assets[i].getName().replaceAll(".gif","")+".png"));
-        }
-        */
+//        File assetsDir = new File("E:\\Android\\Agility\\android\\assets\\convertName");
+//        File[] assets = assetsDir.listFiles();
+//        for (int i = 0; i < assets.length; i++) {
+//            assets[i].renameTo(new File("E:\\Android\\Agility\\android\\assets\\convertName\\warrior-0"+assets[i].getName().replaceAll(".gif","")+".png"));
+//        }
+
         System.out.print("Init main menu........");
         init("level selection menu");
         init("main menu");
@@ -144,6 +150,7 @@ public class Game extends com.badlogic.gdx.Game {
 
         }
         unfreeze();
+        musicHandler.begin(level.getNumber());
         KillsCounter.refreshGameKills();
     }
 
@@ -153,7 +160,6 @@ public class Game extends com.badlogic.gdx.Game {
 
     @Override
     public void render() {
-
         if(currentState == STATE_IN_GAME) {
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
             Gdx.gl.glClearColor(10.2f/100f,11.8f/100f,19.2f/100f,1);
@@ -183,12 +189,7 @@ public class Game extends com.badlogic.gdx.Game {
             if (Gdx.input.isKeyPressed(Input.Keys.X)) {
                 debugRenderer.render(middle, camera.combined);
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.G)) {
-                freeze = true;
-            }
-            else {
-                freeze = false;
-            }
+
             if (Gdx.input.isKeyPressed(Input.Keys.C)) {
                 debugRenderer.render(foreground, camera.combined);
                 flash = true;
@@ -216,6 +217,8 @@ public class Game extends com.badlogic.gdx.Game {
 
     // Finish current level
     private void finish() {
+        save();
+        musicHandler.refresh();
         currentState = STATE_IN_MAIN_MENU;
         enemies.clear();
         BlockFactory.refreshVariables();
@@ -228,14 +231,14 @@ public class Game extends com.badlogic.gdx.Game {
 
     }
 
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
+    public void pause (boolean pause) {
+        paused = pause;
+        if(pause) {
+            freeze();
+        }
+        else {
+            unfreeze();
+        }
     }
 
     @Override
@@ -247,6 +250,9 @@ public class Game extends com.badlogic.gdx.Game {
         }
         mainMenu.dispose();
         levelSelectionMenu.dispose();
+    }
+
+    public void save(){
         Save save = savedProgress();
         if(hero != null && hero.isDied()) {
             save.clear();
@@ -255,7 +261,6 @@ public class Game extends com.badlogic.gdx.Game {
         else {
             save.save();
         }
-
     }
 
     private Save savedProgress() {
@@ -272,13 +277,14 @@ public class Game extends com.badlogic.gdx.Game {
 
 
     public void addRandomItem(Vector2 position, boolean fromBoss) {
-        Item item = null;
-        if(Math.random()>=0f) {
-            item = new ItemFactory(this).createRandomWeapon();
+        Item item;
+        if(fromBoss) {
+            item = new ItemFactory(this).createSlasher();
         }
         else {
-
+            item = new ItemFactory(this).createRandomWeapon();
         }
+
         item.addToWorld(stage, position);
     }
 
@@ -325,6 +331,8 @@ public class Game extends com.badlogic.gdx.Game {
             flashScreen.setSize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
             OnHitDamageView.init();
             FlingPiece.init();
+
+            musicHandler = new MusicHandler();
         }
 
         else if(request.equalsIgnoreCase("stage elements")) {
@@ -342,8 +350,14 @@ public class Game extends com.badlogic.gdx.Game {
 
             enemies.clear();
             for (int i = 0; i < BlockFactory.enemiesPos.size(); i++) {
-                enemies.add(new Enemy(patterns[new Random().nextInt(patterns.length)],middle,BlockFactory.enemiesPos.get(i),this));
+                EnemyDef pattern = patterns[new Random().nextInt(patterns.length)];
+                enemies.add(new Enemy(pattern,middle,BlockFactory.enemiesPos.get(i),this));
                 stage.addActor(enemies.get(i));
+            }
+            if(BlockFactory.bossPos != null) {
+                Boss boss = new Boss(ENEMY_BOSS,middle,BlockFactory.bossPos,this);
+                enemies.add(boss);
+                stage.addActor(boss);
             }
 
             for (int i = 0; i < BlockFactory.gatesPos.size(); i++) {
@@ -379,6 +393,21 @@ public class Game extends com.badlogic.gdx.Game {
             for (int i = 0; i < BlockFactory.vasesPos.size(); i++) {
                 stage.addActor(new Decoration("vase", BlockFactory.vasesPos.get(i)));
             }
+
+            // NPC
+            for (int i = 0; i < BlockFactory.castersPos.size(); i++) {
+                stage.addActor(new NPC(new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("NPC/caster",20, 0.15f).content),-0,-4.4f, 0),NPC.bookSpellCast, BlockFactory.castersPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.ninjasPos.size(); i++) {
+                stage.addActor(new NPC(new AnimationWithOffset(new Animation<Sprite>(0.07f,new SpritePack("NPC/ninja",19,0.08f).content),-0,-1.1f, 0),NPC.weaponSell, BlockFactory.ninjasPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.warriorsPos.size(); i++) {
+                stage.addActor(new NPC(new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("NPC/warrior",7,0.06f).content),-0,-2.8f, 0),NPC.weaponUpgrade, BlockFactory.warriorsPos.get(i)));
+            }
+            for (int i = 0; i < BlockFactory.witchesPos.size(); i++) {
+                stage.addActor(new NPC(new AnimationWithOffset(new Animation<Sprite>(0.07f,new SpritePack("NPC/witch",26,0.075f).content),-0,-1, 0),NPC.manaFill, BlockFactory.witchesPos.get(i)));
+            }
+
             hero.init("body");
             stage.addActor(hero);
         }
@@ -528,6 +557,23 @@ public class Game extends com.badlogic.gdx.Game {
             ENEMY_SLIME.animations.put("die",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("enemies/slime/die",4).content),-1,-6.2f,-12));
             ENEMY_SLIME.animations.put("attack",new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("enemies/slime/attack",5).content),-1,-6.2f, -12));
             patterns[7] = ENEMY_SLIME;
+
+            ENEMY_BOSS = new EnemyDef();
+            ENEMY_BOSS.cooldown = 70;
+            ENEMY_BOSS.cooldownInStart = 5;
+            ENEMY_BOSS.attackRange = 25;
+            ENEMY_BOSS.boss = true;
+            ENEMY_BOSS.visibilityY = 20;
+            ENEMY_BOSS.visibilityX = 1000;
+            ENEMY_BOSS.maxHealth = 4000;
+            ENEMY_BOSS.runVelocity = 40;
+            ENEMY_BOSS.damageDealt = 100;
+            ENEMY_BOSS.stateTimeSlash = 1f;
+            ENEMY_BOSS.animations = new HashMap<String, AnimationWithOffset>();
+            ENEMY_BOSS.animations.put("run",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("enemies/skeleton_boss/walk",13,new Vector2(60*0.7f,90*0.7f)).content),-60*0.7f*0.23f+6,-32, -29));
+            ENEMY_BOSS.animations.put("idle",new AnimationWithOffset(new Animation<Sprite>(0.3f,new SpritePack("enemies/skeleton_boss/idle",11,new Vector2(60*0.7f,80*0.7f)).content),-60*0.7f*0.23f+6,-32, -30));
+            ENEMY_BOSS.animations.put("die",new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("enemies/skeleton/die",15).content),0,-8,-8));
+            ENEMY_BOSS.animations.put("attack",new AnimationWithOffset(new Animation<Sprite>(0.14f,new SpritePack("enemies/skeleton_boss/attack",18,new Vector2(80.6f*0.91f,69.37f*0.91f)).content),-8,-64.5f, -88));
         }
         else if(request.equals("main menu")) {
             mainMenu = new MainMenu(this);
@@ -683,9 +729,13 @@ public class Game extends com.badlogic.gdx.Game {
         unfreeze();
     }
 
+    public static boolean isPaused() {
+        return paused;
+    }
+
     public void freeze() {
         freeze = true;
-        hero.stop();
+        hero.stop(true);
         for(Enemy e:enemies) {
             e.setAnimation("idle");
         }

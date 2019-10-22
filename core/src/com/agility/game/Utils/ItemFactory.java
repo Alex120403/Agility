@@ -1,8 +1,10 @@
 package com.agility.game.Utils;
 
+import com.agility.game.Hero;
 import com.agility.game.UI.ItemInfo;
 import com.agility.game.WorldObjects.Item;
 import com.agility.game.Game;
+import com.badlogic.gdx.graphics.Color;
 
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -32,9 +34,22 @@ public class ItemFactory {
         info.setItem(item);
         return item;
     }
+
+    @Deprecated
     public Item createRandomArmor() {
         Item item = null;
+        return item;
+    }
 
+    public Item createSlasher() {
+        int damage = (int)(Game.getHero().getWeapon().getParameter1() * (1.1f+random.nextFloat()/4));
+        float criticalPercents = Game.getHero().getWeapon().getParameter2() * (1.1f+random.nextFloat()/4);
+
+        ItemInfo info = new ItemInfo(ItemInfo.TYPE_WEAPON,"Crystal Slasher",damage,criticalPercents,0);
+        Item item = null;
+
+        item = new Item(game,"Slasher",info);
+        info.setItem(item);
         return item;
     }
 }

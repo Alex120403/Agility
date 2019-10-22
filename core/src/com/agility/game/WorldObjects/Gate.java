@@ -38,6 +38,9 @@ public class Gate extends Actor {
         setZIndex(0);
 
         needToKill = (int)(enemiesCount*opensWithKillsPart);
+        if(needToKill == 0) {
+            needToKill = 1; // Boss level
+        }
 
         BodyDef def = new BodyDef();
         def.gravityScale = 70;
@@ -63,7 +66,7 @@ public class Gate extends Actor {
         body.createFixture(fixtureDef);
         body.setUserData("block");
 
-        animation = new AnimationWithOffset(new Animation<Sprite>(0.2f,new SpritePack("gate/gate",11).content),0,0, 0);
+        animation = new AnimationWithOffset(new Animation<Sprite>(0.15f,new SpritePack("gate/gate",11).content),0,0, 0);
         for (int i = 0; i < animation.animation.getKeyFrames().length; i++) {
             animation.animation.getKeyFrames()[i].setSize(14,20);
             animation.animation.getKeyFrames()[i].setPosition(position.x,position.y-2);
@@ -88,8 +91,8 @@ public class Gate extends Actor {
 
         if(canOpen() || stateTime > 0) {
             stateTime+=Gdx.graphics.getDeltaTime();
-            if(stateTime >= 2) {  // Frame duration * frames count - 1
-                world.destroyBody(body);
+            if(stateTime >= 1.5f) {  // Frame duration * frames count - 1
+                body.setActive(false);
                 opened = true;
             }
         }

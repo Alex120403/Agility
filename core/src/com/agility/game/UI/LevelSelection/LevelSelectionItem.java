@@ -72,6 +72,8 @@ public class LevelSelectionItem extends Actor implements Comparable<LevelSelecti
         preview.draw(batch);
         nameFont.draw(batch, drawableName, preview.getX() + 10, preview.getY() + preview.getHeight() + 40);
         batch.end();
+
+        preview.setX(preview.getX()-2);
     }
 
     public static void dispose() {
