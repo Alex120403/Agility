@@ -1,5 +1,6 @@
 package com.agility.game.UI.LevelSelection;
 
+import com.agility.game.WorldObjects.Gate;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -22,7 +23,8 @@ public class LevelSelectionMenu extends Stage {
     }
 
     public void touchDown(int screenX, int screenY) {
-        if(game.getCurrentState() == Game.STATE_IN_LEVEL_SELECTION) {
+        if(game.getCurrentState() == Game.STATE_IN_LEVEL_SELECTION && Game.timeSinceLevelSelectionMenuOpen >= 2) {
+            handler.hit(screenX,screenY);
             for (int i = 0; i < handler.getItems().length; i++) {
                 handler.getItems()[i].hit(screenX, screenY);
             }
@@ -34,5 +36,9 @@ public class LevelSelectionMenu extends Stage {
         if(game.getCurrentState() == Game.STATE_IN_LEVEL_SELECTION) {
 
         }
+    }
+
+    public LevelSelectionItemsHandler getHandler() {
+        return handler;
     }
 }

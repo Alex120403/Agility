@@ -342,6 +342,7 @@ public class Hero extends Actor {
         }
         SoundPlayer.play(rollSound);
         isRolling = true;
+        stopped = false;
         rollingTimer = 24;
         this.rollDirection = rollDirection;
     }
@@ -946,5 +947,9 @@ public class Hero extends Actor {
 
     public boolean hasWeapon() {
         return hasWeapon;
+    }
+
+    public float getDirection() {
+        return direction;
     }
 }

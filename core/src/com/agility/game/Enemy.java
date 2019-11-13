@@ -49,7 +49,7 @@ public class Enemy extends Actor {
         this.world = world;
         this.position = position;
         this.game = game;
-        maxHealth = def.maxHealth;
+        maxHealth = getRealHealth(def.maxHealth);
         health = maxHealth;
         DEFAULT_COOLDOWN = def.cooldown;
         cooldown = def.cooldownInStart;

@@ -5,6 +5,7 @@ import com.agility.game.UI.MainMenuItem;
 import com.agility.game.UI.MenuItemEvent;
 import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.Utils.MainMenuInputProcessor;
+import com.agility.game.Utils.Save;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
@@ -40,6 +41,8 @@ public class MainMenu extends Stage {
         newGame = new MainMenuItem(new MenuItemEvent() {
             @Override
             public void handle() {
+                Save save = new Save();
+                save.clear();
                 game.openLevelSelectionMenu();
             }
         }, new Texture(Gdx.files.internal("buttons/newGame.png")),Gdx.graphics.getHeight()/2.18f);

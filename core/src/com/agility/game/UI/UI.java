@@ -2,11 +2,14 @@ package com.agility.game.UI;
 
 import com.agility.game.Game;
 import com.agility.game.Hero;
+import com.agility.game.UI.LevelSelection.LevelSelectionItemsHandler;
+import com.agility.game.Utils.GameBalanceConstants;
 import com.agility.game.Utils.UIButtonEvent;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -15,16 +18,19 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import java.util.logging.Level;
+
 public class UI extends Stage {
     public boolean tapOnUI, swipeOpacityDecreaseUnlocked;
-    private static BitmapFont font;
+    private static BitmapFont font, nextLevelFont, currentLevelFont;
     private HeroHealthPanel healthPanel;
     private String message = "";
     private float opacity = 0.99f;
     private Game game;
     private Sprite point, end;
-    private float swipeOpacity;
+    private float swipeOpacity, stateTime, hint;
     public boolean drawText;
+    private String hintMessage;
     public static String drawTextMessage;
     public float drawTextX,drawTextY,drawTextOpacity;
 
@@ -34,7 +40,7 @@ public class UI extends Stage {
     private BoosterTakeRequest boosterTakeRequest;
 
     private static ShapeRenderer debugRenderer = new ShapeRenderer();
-    private boolean drawBossHealth;
+    private boolean drawBossHealth, hintTriggered;
     private float healthPercents;
     private Texture hpbg;
     private Texture hpfg;
@@ -49,11 +55,19 @@ public class UI extends Stage {
         addActor(itemEquipRequest);
         boosterTakeRequest = new BoosterTakeRequest();
         addActor(boosterTakeRequest);
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("basis33OLD.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 30;
         parameter.color = Color.WHITE;
         font = generator.generateFont(parameter);
+        parameter.size = 64;
+        parameter.color = Color.GOLD;//new Color(141f/255f,207f/255f,228f/255f,0.8f);
+        parameter.characters = GameBalanceConstants.RUSSIAN_CHARACTERS;
+        nextLevelFont = generator.generateFont(parameter);
+        parameter.size = 100;
+        parameter.color = Color.GOLD;//new Color(141f/255f,207f/255f,228f/255f,0.8f);
+        parameter.characters = GameBalanceConstants.RUSSIAN_CHARACTERS;
+        currentLevelFont = generator.generateFont(parameter);
 
         point = new Sprite(new Texture(Gdx.files.internal("point.png")));
         point.setAlpha(0);
@@ -72,6 +86,10 @@ public class UI extends Stage {
         addActor(pause);
 
         this.game = game;
+    }
+
+    public void start() {
+        stateTime = 0;
     }
 
     private void addPausePanel() {
@@ -104,13 +122,51 @@ public class UI extends Stage {
             getBatch().draw(hpfg,Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()-100, Gdx.graphics.getWidth()/2 * healthPercents, hpbg.getHeight()+4);
             drawBossHealth = false;
         }
+        if(game.getCurrentState() == Game.STATE_IN_GAME) {
+            if(LevelSelectionItemsHandler.items.length != Game.getCurrentLevelNumber()) {
+                Vector2 exitPortalTextPos = game.exitPortal.getTextDrawPosition();
+                nextLevelFont.draw(getBatch(), LevelSelectionItemsHandler.items[Game.getCurrentLevelNumber()].drawableName, exitPortalTextPos.x + (8 - LevelSelectionItemsHandler.items[Game.getCurrentLevelNumber()].drawableName.length()) * (12), exitPortalTextPos.y);
+            }
+            if(stateTime < 8) {
+                String levelName = LevelSelectionItemsHandler.items[Game.getCurrentLevelNumber()-1].drawableName;
 
-        Hero.blood.draw(Game.getUi().getBatch(), (float)Math.pow(1 - game.getHero().getHealth()/game.getHero().getMaxHealth(),2));
+                GlyphLayout glyphLayout = new GlyphLayout();
+                glyphLayout.setText(currentLevelFont, levelName);
+                float w = glyphLayout.width;
+                currentLevelFont.setColor(currentLevelFont.getColor().r, currentLevelFont.getColor().g,
+                        currentLevelFont.getColor().b, (float) Math.sin((stateTime-2)/4*Math.PI));
+                currentLevelFont.draw(getBatch(), levelName, Gdx.graphics.getWidth()/2-w/2, Gdx.graphics.getHeight()*3/4);
+            }
+            else if(Game.getCurrentLevelNumber() == 1 && !hintTriggered){
+                hintTriggered = true;
+                hint("Что бы побежать вправо, свайпните вправо");
+            }
+        }
+        if(hint > 0) {
+            Color prevColor = currentLevelFont.getColor();
+            currentLevelFont.getData().setScale(0.5f);
+            currentLevelFont.setColor(Color.GOLD);
+            hint-=Gdx.graphics.getDeltaTime();
+            GlyphLayout glyphLayout = new GlyphLayout();
+            glyphLayout.setText(currentLevelFont, hintMessage);
+            float w = glyphLayout.width;
+            currentLevelFont.draw(getBatch(), hintMessage, Gdx.graphics.getWidth()/2-w/2, Gdx.graphics.getHeight()*3/4);
+            currentLevelFont.setColor(prevColor);
+        }
+
+        //Hero.blood.draw(Game.getUi().getBatch(), (float)Math.pow(1 - game.getHero().getHealth()/game.getHero().getMaxHealth(),2));
         if(game.getHero().damaged > 0) {
-            Hero.blood.draw(Game.getUi().getBatch(),0.7f*(game.getHero().damaged/20f));
+            //Hero.blood.draw(Game.getUi().getBatch(),0.7f*(game.getHero().damaged/20f));
         }
         getBatch().end();
         opacity-=(1-opacity)/25;
+        stateTime += Gdx.graphics.getDeltaTime();
+    }
+
+    public void hint(String message){
+        hintMessage = message;
+        hint = 100;
+        Game.getHero().stop();
     }
 
     public boolean tap(int x, int y) {

@@ -55,7 +55,8 @@ public class Coin extends Actor {
         this.world = world;
         this.game = game;
 
-        velocity = new Vector2((random.nextFloat()+0.2f) * (Math.random() > 0.5f ? 1.5f : -1.5f),random.nextFloat() * (Math.random() > 0.5f ? 1.5f : -1.5f));
+        velocity = new Vector2((random.nextFloat()+0.2f) * (Game.getHero().getDirection() > 0 ? 2f : -2f),random.nextFloat() * (Math.random() > 0.5f ? 1.5f : -1.5f));
+        //velocity = new Vector2((random.nextFloat()+0.2f) * (Math.random() > 0.5f ? 1.5f : -1.5f),random.nextFloat() * (Math.random() > 0.5f ? 1.5f : -1.5f));
         animation = new AnimationWithOffset(new Animation<Sprite>(0.5f,sprites[getRandomType()]),0,0,0);
     }
 

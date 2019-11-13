@@ -55,7 +55,7 @@ public class Save {
 
     public void save() {
         Preferences prefs = Gdx.app.getPreferences("game preferences");
-
+        System.out.println("PP " +passedLevels);
         prefs.putInteger("coins",coins);
         prefs.putInteger("diamonds", diamonds);
         prefs.putInteger("passedLevels", passedLevels);

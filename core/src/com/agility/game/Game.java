@@ -82,9 +82,12 @@ public class Game extends com.badlogic.gdx.Game {
     public static ArrayList<Booster> boosters = new ArrayList<Booster>();
     private Map map;
     private BoosterChoice currentChoice;
-    public static float zoom = 7.5f;
+    public static float zoom = 7.5f, timeSinceLevelSelectionMenuOpen;
     private static Hero hero;
     private int currentState;
+    public static int lastPassedLevel;
+    private HintsHandler hintsHandler;
+    private ArrayList<Hint> mightBeAddedHints;
 
     // Flash
     private float flashOpacity = 0;
@@ -99,10 +102,11 @@ public class Game extends com.badlogic.gdx.Game {
     private boolean choose;
     private boolean freeze;
     private static boolean paused;
-    private int currentLevelNumber;
+    private static int currentLevelNumber;
 
     public static int drawableItemGrabRequests;
     private MusicHandler musicHandler;
+    public ExitPortal exitPortal;
 
 
     public Game() {
@@ -121,6 +125,7 @@ public class Game extends com.badlogic.gdx.Game {
         System.out.print("Init main menu........");
         init("level selection menu");
         init("main menu");
+        init("passed levels");
         Gdx.graphics.setVSync(true);
     }
 
@@ -149,9 +154,17 @@ public class Game extends com.badlogic.gdx.Game {
             currentState = STATE_IN_GAME;
 
         }
+        if(level.getNumber() == 1){
+            hintsHandler = new HintsHandler(mightBeAddedHints);
+        }
+        else {
+            hintsHandler = null;
+        }
         unfreeze();
+        hero.heal(hero.getMaxHealth());
         musicHandler.begin(level.getNumber());
         KillsCounter.refreshGameKills();
+        ui.start();
     }
 
     public static void log(String message) {
@@ -170,7 +183,7 @@ public class Game extends com.badlogic.gdx.Game {
             ui.act();
             ui.draw();
             if(flash) {
-                if(flashOpacity >= 0.85) {
+                if(flashOpacity >= 0.95) {
                     finish();
                     flash = false;
                     flashOpacity = 0;
@@ -178,7 +191,8 @@ public class Game extends com.badlogic.gdx.Game {
                 batch.begin();
                 flashScreen.setPosition(camera.position.x-camera.viewportWidth/2,camera.position.y-camera.viewportHeight/2);
                 flashScreen.draw(batch,flashOpacity);
-                flashOpacity+=0.035f;
+                flashOpacity+=0.015f;
+                musicHandler.setVolume(1-flashOpacity);
                 batch.end();
             }
 
@@ -204,6 +218,7 @@ public class Game extends com.badlogic.gdx.Game {
         }
         else if(currentState == STATE_IN_LEVEL_SELECTION){
             levelSelectionMenu.draw();
+            timeSinceLevelSelectionMenuOpen+=Gdx.graphics.getDeltaTime();
         }
 
         if(freeze) {
@@ -213,14 +228,23 @@ public class Game extends com.badlogic.gdx.Game {
         }
 
         drawableItemGrabRequests = 0;
+        if (hintsHandler != null) {
+            hintsHandler.update();
+        }
     }
 
     // Finish current level
     private void finish() {
+        lastPassedLevel = Math.max(currentLevelNumber, lastPassedLevel);
+        System.out.println("FIN "+currentLevelNumber);
+        System.out.println("LPL " +lastPassedLevel);
         save();
-        musicHandler.refresh();
+        musicHandler.stop();
         currentState = STATE_IN_MAIN_MENU;
         enemies.clear();
+
+        try{levelSelectionMenu.getHandler().getItems()[lastPassedLevel].unlock();}
+        catch (Exception e){}
         BlockFactory.refreshVariables();
         onGroundItems.clear();
         Gdx.input.setInputProcessor(new MainMenuInputProcessor(mainMenu, levelSelectionMenu));
@@ -243,13 +267,7 @@ public class Game extends com.badlogic.gdx.Game {
 
     @Override
     public void dispose() {
-        if(currentState == STATE_IN_GAME) {
-            batch.dispose();
-            stage.dispose();
-            debugRenderer.dispose();
-        }
-        mainMenu.dispose();
-        levelSelectionMenu.dispose();
+
     }
 
     public void save(){
@@ -272,6 +290,8 @@ public class Game extends com.badlogic.gdx.Game {
             save.passedLevels = 0;
             save.equippedWeapon = hero.getWeapon();
         }
+        System.out.println("LPL "+lastPassedLevel);
+        save.passedLevels = lastPassedLevel;
         return save;
     }
 
@@ -341,7 +361,7 @@ public class Game extends com.badlogic.gdx.Game {
 
             createStartSword();
             Coin.loadAtlases();
-            ExitPortal exitPortal = new ExitPortal(this,BlockFactory.exitPos);
+            exitPortal = new ExitPortal(this,BlockFactory.exitPos);
             exitPortal.addToWorld(stage);
 
             for (int i = 0; i < BlockFactory.boostsPos.size(); i++) {
@@ -361,10 +381,10 @@ public class Game extends com.badlogic.gdx.Game {
             }
 
             for (int i = 0; i < BlockFactory.gatesPos.size(); i++) {
-                stage.addActor(new Gate(BlockFactory.gatesPos.get(i), getMainWorld(), 0.9f, enemies.size()));
+                stage.addActor(new Gate(BlockFactory.gatesPos.get(i), getMainWorld(), GameBalanceConstants.REQUIRED_KILLS, enemies.size()));
             }
 
-
+            mightBeAddedHints = new ArrayList<Hint>();
             // Decorations
             for (int i = 0; i < BlockFactory.anvilsPos.size(); i++) {
                 stage.addActor(new Decoration("anvil", BlockFactory.anvilsPos.get(i)));
@@ -376,7 +396,7 @@ public class Game extends com.badlogic.gdx.Game {
                 stage.addActor(new Decoration("chest", BlockFactory.chestsPos.get(i)));
             }
             for (int i = 0; i < BlockFactory.cobblestonesPos.size(); i++) {
-                //stage.addActor(new Decoration("cobblestone", BlockFactory.cobblestonesPos.get(i)));
+                stage.addActor(new AnimatedDecoration("cobblestone", BlockFactory.cobblestonesPos.get(i), 0.2f, 6, -11.8f));
             }
             for (int i = 0; i < BlockFactory.firesPos.size(); i++) {
                 stage.addActor(new AnimatedDecoration("fire", BlockFactory.firesPos.get(i),0.15f,6));
@@ -388,14 +408,16 @@ public class Game extends com.badlogic.gdx.Game {
                 stage.addActor(new Decoration("priest", BlockFactory.pristsPos.get(i)));
             }
             for (int i = 0; i < BlockFactory.signsPos.size(); i++) {
-                stage.addActor(new Decoration("sign", BlockFactory.signsPos.get(i)));
+                Vector2 hPos = BlockFactory.signsPos.get(i);
+                mightBeAddedHints.add(new Hint(hPos, i));
+                stage.addActor(new Decoration("sign", hPos));
             }
             for (int i = 0; i < BlockFactory.vasesPos.size(); i++) {
                 stage.addActor(new Decoration("vase", BlockFactory.vasesPos.get(i)));
             }
 
             // NPC
-            for (int i = 0; i < BlockFactory.castersPos.size(); i++) {
+            /*for (int i = 0; i < BlockFactory.castersPos.size(); i++) {
                 stage.addActor(new NPC(new AnimationWithOffset(new Animation<Sprite>(0.1f,new SpritePack("NPC/caster",20, 0.15f).content),-0,-4.4f, 0),NPC.bookSpellCast, BlockFactory.castersPos.get(i)));
             }
             for (int i = 0; i < BlockFactory.ninjasPos.size(); i++) {
@@ -406,7 +428,7 @@ public class Game extends com.badlogic.gdx.Game {
             }
             for (int i = 0; i < BlockFactory.witchesPos.size(); i++) {
                 stage.addActor(new NPC(new AnimationWithOffset(new Animation<Sprite>(0.07f,new SpritePack("NPC/witch",26,0.075f).content),-0,-1, 0),NPC.manaFill, BlockFactory.witchesPos.get(i)));
-            }
+            }*/
 
             hero.init("body");
             stage.addActor(hero);
@@ -506,8 +528,8 @@ public class Game extends com.badlogic.gdx.Game {
 
 
             ENEMY_NINJA = new EnemyDef();
-            ENEMY_NINJA.cooldown = 40;
-            ENEMY_NINJA.cooldownInStart = 5;
+            ENEMY_NINJA.cooldown = 50;
+            ENEMY_NINJA.cooldownInStart = 15;
             ENEMY_NINJA.attackRange = 22;
             ENEMY_NINJA.visibilityY = 5;
             ENEMY_NINJA.visibilityX = 50;
@@ -565,7 +587,7 @@ public class Game extends com.badlogic.gdx.Game {
             ENEMY_BOSS.boss = true;
             ENEMY_BOSS.visibilityY = 20;
             ENEMY_BOSS.visibilityX = 1000;
-            ENEMY_BOSS.maxHealth = 4000;
+            ENEMY_BOSS.maxHealth = 8000;
             ENEMY_BOSS.runVelocity = 40;
             ENEMY_BOSS.damageDealt = 100;
             ENEMY_BOSS.stateTimeSlash = 1f;
@@ -580,6 +602,17 @@ public class Game extends com.badlogic.gdx.Game {
         }
         else if(request.equals("level selection menu")) {
             levelSelectionMenu = new LevelSelectionMenu(this);
+        }
+        else if(request.equals("passed levels")) {
+            Save save = new Save();
+            save.load();
+            lastPassedLevel = save.passedLevels;
+            for (int i = 0; i <= lastPassedLevel; i++) {
+                System.out.println("UNCLOCK Level "+(i+1));
+                try{
+                levelSelectionMenu.getHandler().getItems()[i].unlock();}
+                catch (Exception e){}
+            }
         }
         else if(request.equals("saves")) {
             Save save = new Save();
@@ -662,6 +695,7 @@ public class Game extends com.badlogic.gdx.Game {
 
     public void openLevelSelectionMenu() {
         currentState = STATE_IN_LEVEL_SELECTION;
+        timeSinceLevelSelectionMenuOpen = 0;
     }
 
     public void drawLoadingScreen() {
@@ -749,7 +783,7 @@ public class Game extends com.badlogic.gdx.Game {
         return freeze;
     }
 
-    public int getCurrentLevelNumber() {
+    public static int getCurrentLevelNumber() {
         return currentLevelNumber;
     }
 
@@ -760,6 +794,9 @@ public class Game extends com.badlogic.gdx.Game {
     public static ArrayList<Bullet> getBullets() {
         return bullets;
     }
+
+
+
 }
 
 /*

@@ -1,5 +1,6 @@
 package com.agility.game.UI;
 
+import com.agility.game.Utils.MusicHandler;
 import com.agility.game.Utils.Settings;
 import com.agility.game.Utils.UIButtonEvent;
 import com.badlogic.gdx.Gdx;
@@ -59,6 +60,7 @@ public class PausePanel extends Actor {
                     Settings.SOUND_ENABLED = true;
                     soundToggle.setIcon(new Sprite(new Texture(Gdx.files.internal("UI/Vector_SoundOn.png"))));
                 }
+                MusicHandler.refresh();
             }
         }, new Vector2(getLayoutX(0), position.y + buttonsY), 96 * scale, "Vector_SoundOn.png");
 

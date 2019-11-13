@@ -13,11 +13,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class LevelSelectionItemsHandler {
-    private static LevelSelectionItem[] items;
+    public static LevelSelectionItem[] items;
     private Game game;
     private static LevelSelectionItem selectedItem;
-    private Texture selection;
+    private Texture selection, arrowRight, arrowLeft;
     private static int selectionIndex;
+    public static ArrayList<String> names = new ArrayList<String>();
 
     public LevelSelectionItemsHandler( Game game) {
         this.game = game;
@@ -26,7 +27,8 @@ public class LevelSelectionItemsHandler {
         FileHandle dirHandle;
         dirHandle = Gdx.files.internal("maps");
 
-        ArrayList<String> names = new ArrayList<String>();
+        arrowRight = new Texture(Gdx.files.internal("arrowRight.png"));
+        arrowLeft = new Texture(Gdx.files.internal("arrowLeft.png"));
 
         for (int i = 0; i < dirHandle.list().length; i++) {
             if(!names.contains(dirHandle.list()[i].nameWithoutExtension()) && dirHandle.list()[i].nameWithoutExtension().contains("_")) {
@@ -42,7 +44,8 @@ public class LevelSelectionItemsHandler {
         bubbleSort(items);
 
         for (int i = 0; i < items.length; i++) {
-            items[i].setPosition(new Vector2(100 + 550*i, 50));
+            System.out.println(items[i].drawableName);
+            items[i].setPosition(new Vector2(100 + 550*i, 300));
         }
 
         int w = 530;
@@ -56,13 +59,31 @@ public class LevelSelectionItemsHandler {
         selection = new Texture(selectionPixmap);
     }
 
+    public void hit(float x, float y) {
+        if(y < 300 && x<Gdx.graphics.getWidth()/2) {
+            for (int i = 0; i < items.length; i++) {
+                items[i].preview.setX(items[i].preview.getX()+550);
+            }
+
+        }
+        else if(y < 300 && x>=Gdx.graphics.getWidth()/2) {
+            for (int i = 0; i < items.length; i++) {
+                items[i].preview.setX(items[i].preview.getX()-550);
+            }
+        }
+    }
+
     public void draw(Batch batch) {
         for (int i = 0; i < items.length; i++) {
             items[i].draw(batch,1);
         }
         batch.begin();
         batch.draw(selection,items[selectionIndex].getX() - 9, items[selectionIndex].getY() - 9);
+        batch.draw(arrowLeft, 20,20,128,128);
+        batch.draw(arrowRight, Gdx.graphics.getWidth()-148,20,128,128);
         batch.end();
+
+
     }
 
     public static void setSelectedItem(LevelSelectionItem selectedItem) {

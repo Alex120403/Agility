@@ -8,8 +8,8 @@ import com.agility.game.Main;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width;
-		config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height;
+		config.width = 1440;//LwjglApplicationConfiguration.getDesktopDisplayMode().width;
+		config.height = 720;//LwjglApplicationConfiguration.getDesktopDisplayMode().height;
 		config.fullscreen = true;
 		new LwjglApplication(new Game(), config);
 	}
