@@ -58,6 +58,7 @@ public class Hero extends Actor {
     private final static Color colorDamage = new Color(1,0.5f,0.5f,1);
     private FixtureDef fixtureDef;
     private PolygonShape shape;
+    private float timeAfterDying;
 
 
     // Exp bar
@@ -375,6 +376,13 @@ public class Hero extends Actor {
         checkForDeath();
         checkForRoll();
         reduceJumpBlock();
+        if(isDied) {
+            timeAfterDying += Gdx.graphics.getDeltaTime();
+            if(timeAfterDying > 6) {
+                timeAfterDying = 0;
+                game.lose();
+            }
+        }
         if((currentAnimation.equals("attack1") || currentAnimation.equals("attack2") || currentAnimation.equals("attack3")) && touchings == 0) {
             setAnimation("jump");
         }
@@ -538,6 +546,9 @@ public class Hero extends Actor {
         if(health <= 0) {
             setAnimation("die");
             isDied = true;
+            if(timeAfterDying == 0) {
+                timeAfterDying = 0.1f;
+            }
             health = 0;
         }
     }

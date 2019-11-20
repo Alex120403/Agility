@@ -83,7 +83,7 @@ public class Save {
         heroMaxHealth = prefs.getInteger("heroMaxHealth", GameBalanceConstants.DEFAULT_HERO_MAX_HEALTH);
         if(heroMaxHealth < GameBalanceConstants.DEFAULT_HERO_MAX_HEALTH) {
             System.out.println("WARNING! Recursive call: hero max health < default");
-            clear();
+            clear(passedLevels);
             load();
         }
         System.out.println("[Load]  Hero max health: "+heroMaxHealth);
@@ -97,9 +97,10 @@ public class Save {
 
     }
 
-    public void clear() {
+    public void clear(int passedLevels) {
         Preferences prefs = Gdx.app.getPreferences("game preferences");
         prefs.clear();
+        prefs.putInteger("passedLevels", passedLevels);
         prefs.flush();
         System.out.println("WARNING: Automatic save clear");
     }

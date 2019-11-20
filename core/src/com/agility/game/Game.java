@@ -250,6 +250,18 @@ public class Game extends com.badlogic.gdx.Game {
         Gdx.input.setInputProcessor(new MainMenuInputProcessor(mainMenu, levelSelectionMenu));
     }
 
+    // Finish current level
+    public void lose() {
+        save();
+
+        musicHandler.stop();
+        currentState = STATE_IN_MAIN_MENU;
+        enemies.clear();
+        BlockFactory.refreshVariables();
+        onGroundItems.clear();
+        Gdx.input.setInputProcessor(new MainMenuInputProcessor(mainMenu, levelSelectionMenu));
+    }
+
     @Override
     public void resize(int width, int height) {
 
@@ -273,7 +285,7 @@ public class Game extends com.badlogic.gdx.Game {
     public void save(){
         Save save = savedProgress();
         if(hero != null && hero.isDied()) {
-            save.clear();
+            save.clear(lastPassedLevel);
             System.out.println("Prefs clear!");
         }
         else {

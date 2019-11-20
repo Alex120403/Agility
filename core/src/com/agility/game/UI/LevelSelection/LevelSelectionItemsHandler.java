@@ -25,7 +25,7 @@ public class LevelSelectionItemsHandler {
 
 
         FileHandle dirHandle;
-        dirHandle = Gdx.files.internal("maps");
+        dirHandle = Gdx.files.internal("maps/");
 
         arrowRight = new Texture(Gdx.files.internal("arrowRight.png"));
         arrowLeft = new Texture(Gdx.files.internal("arrowLeft.png"));
@@ -34,6 +34,17 @@ public class LevelSelectionItemsHandler {
             if(!names.contains(dirHandle.list()[i].nameWithoutExtension()) && dirHandle.list()[i].nameWithoutExtension().contains("_")) {
                 names.add(dirHandle.list()[i].nameWithoutExtension());
             }
+        }
+        if(names.size() == 0) {
+            names.add("Обучение_1");
+            names.add("Заросли_2");
+            names.add("Пустыня_3");
+            names.add("Храм_4");
+            names.add("Морозная пещера_5");
+            names.add("Оазис_6");
+            names.add("Копь_7");
+            names.add("Логово_8");
+            names.add("Шахта_9");
         }
 
         items = new LevelSelectionItem[ names.size() ];
@@ -78,7 +89,10 @@ public class LevelSelectionItemsHandler {
             items[i].draw(batch,1);
         }
         batch.begin();
-        batch.draw(selection,items[selectionIndex].getX() - 9, items[selectionIndex].getY() - 9);
+        try {
+            batch.draw(selection, items[selectionIndex].getX() - 9, items[selectionIndex].getY() - 9);
+        }
+        catch (Exception e){}
         batch.draw(arrowLeft, 20,20,128,128);
         batch.draw(arrowRight, Gdx.graphics.getWidth()-148,20,128,128);
         batch.end();

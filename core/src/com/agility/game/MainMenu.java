@@ -42,7 +42,7 @@ public class MainMenu extends Stage {
             @Override
             public void handle() {
                 Save save = new Save();
-                save.clear();
+                save.clear(0);
                 game.openLevelSelectionMenu();
             }
         }, new Texture(Gdx.files.internal("buttons/newGame.png")),Gdx.graphics.getHeight()/2.18f);

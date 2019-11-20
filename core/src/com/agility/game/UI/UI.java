@@ -154,9 +154,9 @@ public class UI extends Stage {
             currentLevelFont.setColor(prevColor);
         }
 
-        //Hero.blood.draw(Game.getUi().getBatch(), (float)Math.pow(1 - game.getHero().getHealth()/game.getHero().getMaxHealth(),2));
+        Hero.blood.draw(Game.getUi().getBatch(), (float)Math.pow(1 - game.getHero().getHealth()/game.getHero().getMaxHealth(),2));
         if(game.getHero().damaged > 0) {
-            //Hero.blood.draw(Game.getUi().getBatch(),0.7f*(game.getHero().damaged/20f));
+            Hero.blood.draw(Game.getUi().getBatch(),0.7f*(game.getHero().damaged/20f));
         }
         getBatch().end();
         opacity-=(1-opacity)/25;
